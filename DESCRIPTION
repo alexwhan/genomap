@@ -1,0 +1,14 @@
+Package: genomap
+Type: Package
+Title: A set of tools for working with raw genotype calls and genetic maps.
+Version: 0.0.0.9000
+Date: 2015-11-03
+Authors@R: c(
+    person("Alex", "Whan", , "alexwhan@gmail.com", c("aut", "cre"))
+    )
+Description: A set of tools for working with raw genotype calls and genetic
+    maps. These include dealing with conversion of raw calls to relative calls
+    (maternal/paternal), converting R/qtl maps to standard data.frame format, and
+    comparing genetic maps with common markers.
+License: GPL-2
+LazyData: TRUE
