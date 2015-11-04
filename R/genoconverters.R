@@ -89,11 +89,11 @@ map2df <- function(map) {
 #' Take output from /code{join2maps()} and a map object to be reversed, and
 #' returns the map object with appropriate groups reversed.
 #'
-#' @params maps.comp_df Output from /code{join2maps()}.
-#' @params refmapid  The reference map name to identify columns in maps.comp_df.
-#' @params revmapid The name of the map to be reversed, used to identify columns
+#' @param maps.comp_df Output from /code{join2maps()}.
+#' @param refmapid  The reference map name to identify columns in maps.comp_df.
+#' @param revmapid The name of the map to be reversed, used to identify columns
 #'   in maps.comp_df.
-#' @params revmap a cross object which is to have linkage groups reversed.
+#' @param revmap a cross object which is to have linkage groups reversed.
 #' @export
 revmaplgs <- function(maps.comp_df, refmapid, revmapid, revmap) {
   refmapdist_ <- paste0(deparse(substitute(refmapid)), "_mapdist")
@@ -114,7 +114,7 @@ revmaplgs <- function(maps.comp_df, refmapid, revmapid, revmap) {
 
 #' Provide the 'mirror image' of a vector, especially of positions.
 #'
-#' @params vec A (possibly named) numeric vector.
+#' @param vec A (possibly named) numeric vector.
 #' @export
 #' @examples
 #' distvec <- c(A = 0, B = 3, C = 10)
@@ -243,7 +243,7 @@ genoPlot <- function(df) {
   df.p <- df %>%
     filter(!is.na(score)) %>%
     ggplot(aes(marker, Gen.sort)) + geom_tile(aes(fill = factor(score))) +
-    ggplot2::theme(axis.text.x = element_text(angle = 45), panel.grid = element_blank(), panel.background = element_blank(), axis.text = element_text(size = 10))
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45), panel.grid = ggplot2::element_blank(), panel.background = ggplot2::element_blank(), axis.text = ggplot2::element_text(size = 10))
 
   return(df.p)
 }
@@ -262,5 +262,5 @@ genoSeg <- function(df, genos) {
   df.p <- dfg %>%
     filter(!is.na(score), score != "--") %>%
     ggplot(aes(marker.sort, Genotype)) + geom_tile(aes(fill = factor(score))) +
-    ggplot2::theme(axis.text = element_blank(), axis.ticks = element_blank()) + xlab("Marker")
+    ggplot2::theme(axis.text = ggplot2::element_blank(), axis.ticks = ggplot2::element_blank()) + xlab("Marker")
 }
