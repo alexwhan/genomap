@@ -9,17 +9,19 @@
 #' @param characterClass A regex character class to match against. If characters
 #'   in \code{score} do not exist in the character class, an error will be
 #'   returned
+#' @param nonMatch c("false", "error") a string defining whether to return false
+#'   or throw an error if scores do not match characterClass.
 #' @export
 #' @examples
 #' isHet("AA")
 #' isHet(c("AA", "AB", "BB"))
 #' isHet("GT", "[AB]")
-isHet <- function(score, characterClass = "[[:alnum:]]") {
+isHet <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
   if(any(nchar(score) != 2)) stop("Expecting a string of length 2")
-  if(any(grepl(sub("^(\\[)", "\\1^", characterClass), score))) {
+  if(nonMatch == "error" & any(grepl(sub("^(\\[)", "\\1^", characterClass), score))) {
     stop("There are genotype scores that do not match the character class")
   }
-  !grepl(paste0("(", characterClass, ")(?=\\1)"), score, perl = T)
+  grepl(paste0("^(", characterClass, ")(?!\\1)"), score, perl = T)
 }
 
 #' Checks genotype scores for homozygosity
@@ -29,10 +31,12 @@ isHet <- function(score, characterClass = "[[:alnum:]]") {
 #' @param characterClass A regex character class to match against. If characters
 #'   in \code{score} do not exist in the character class, an error will be
 #'   returned
+#' @param nonMatch c("false", "error") a string defining whether to return false
+#'   or throw an error if scores do not match characterClass.
 #' @export
-isHomo <- function(score) {
+isHomo <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
   if(any(nchar(score) != 2)) stop("Expecting a string of length 2")
-  if(any(grepl(sub("^(\\[)", "\\1^", characterClass), score))) {
+  if(nonMatch == "error" & any(grepl(sub("^(\\[)", "\\1^", characterClass), score))) {
     stop("There are genotype scores that do not match the character class")
   }
   grepl(paste0("(", characterClass, ")(?=\\1)"), score, perl = T)

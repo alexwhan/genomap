@@ -4,7 +4,7 @@
 \alias{isHomo}
 \title{Checks genotype scores for homozygosity}
 \usage{
-isHomo(score)
+isHomo(score, characterClass = "[[:alnum:]]", nonMatch = "false")
 }
 \arguments{
 \item{score}{A vector of genotype scores, each of which needs to be a two
@@ -13,6 +13,9 @@ character string. Numeric values are converted to strings}
 \item{characterClass}{A regex character class to match against. If characters
 in \code{score} do not exist in the character class, an error will be
 returned}
+
+\item{nonMatch}{c("false", "error") a string defining whether to return false
+or throw an error if scores do not match characterClass.}
 }
 \description{
 Checks genotype scores for homozygosity
