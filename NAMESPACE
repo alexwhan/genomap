@@ -2,6 +2,7 @@
 
 export(convertScore)
 export(isHet)
+export(isHomo)
 export(join2maps)
 export(longmaps)
 export(map2df)
