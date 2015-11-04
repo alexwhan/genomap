@@ -54,7 +54,7 @@ ggholman <- function(df, colour = NULL, labelPoints = NULL) {
 }
 
 #' A theme for trinomial plots
-ggholman.theme <- theme(panel.background = element_rect(fill = "white"),
+ggholman.theme <- ggplot2::theme(panel.background = element_rect(fill = "white"),
                         axis.title = element_blank(),
                         axis.text = element_blank(),
                         axis.ticks = element_blank())

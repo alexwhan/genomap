@@ -243,7 +243,7 @@ genoPlot <- function(df) {
   df.p <- df %>%
     filter(!is.na(score)) %>%
     ggplot(aes(marker, Gen.sort)) + geom_tile(aes(fill = factor(score))) +
-    theme(axis.text.x = element_text(angle = 45), panel.grid = element_blank(), panel.background = element_blank(), axis.text = element_text(size = 10))
+    ggplot2::theme(axis.text.x = element_text(angle = 45), panel.grid = element_blank(), panel.background = element_blank(), axis.text = element_text(size = 10))
 
   return(df.p)
 }
@@ -262,5 +262,5 @@ genoSeg <- function(df, genos) {
   df.p <- dfg %>%
     filter(!is.na(score), score != "--") %>%
     ggplot(aes(marker.sort, Genotype)) + geom_tile(aes(fill = factor(score))) +
-    theme(axis.text = element_blank(), axis.ticks = element_blank()) + xlab("Marker")
+    ggplot2::theme(axis.text = element_blank(), axis.ticks = element_blank()) + xlab("Marker")
 }
