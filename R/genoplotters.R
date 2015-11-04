@@ -41,7 +41,7 @@ ggholman <- function(df, colour = NULL, labelPoints = NULL) {
   points <- trixy(df)
   if(!is.null(labelPoints)) points$pointLabel <- labelPoints
 
-  if(!is.null(colour)) points <- cbind(points, colour)
+  if(!is.null(colour)) points <- cbind(points, colour = colour)
   names(points)[grepl("colour", names(points))] <- "P.value"
 
   tri <- ggplot(vert, aes(x, y)) + geom_path() + geom_text(data = labelpoint, aes(label = label)) +
