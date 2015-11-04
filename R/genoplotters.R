@@ -18,13 +18,17 @@ trixy <- function(df) {
 #' After broman::triplot
 #'
 #' @param df A data.frame of three columns. Where a row does not sum to 1, it
-#'   will be rescaled.
+#'   will be rescaled. Negative values will cause an error.
 #' @param colour A vector to be passed to geom_point to colour points. Needs to
 #'   be sorted the same as df, since it is joined by /code{cbind()}.
+#' @param colourLegend A character string to be used as a legend label if points
+#'   are coloured.
 #' @param labelPoints A vector of labels for points, if the points in the plot
 #'   should be labelled.
 #' @export
-ggholman <- function(df, colour = NULL, labelPoints = NULL) {
+ggholman <- function(df, colour = NULL, colourLegend = NULL, labelPoints = NULL) {
+  #Check there aren't any negative values
+  if(any(df < 0)) stop("The data cannot contain negative values")
   #check there are three columns
   if(ncol(df) != 3) stop("The df needs to have three columns")
   if(any(rowSums(df) - 1 > 1e-06)) {
@@ -41,13 +45,15 @@ ggholman <- function(df, colour = NULL, labelPoints = NULL) {
   points <- trixy(df)
   if(!is.null(labelPoints)) points$pointLabel <- labelPoints
 
-  if(!is.null(colour)) points <- cbind(points, colour = colour)
-  names(points)[grepl("colour", names(points))] <- "P.value"
+  if(!is.null(colour)) points$colour <- colour
+  if(!is.null(colourLegend)) {
+    names(points)[grepl("colour", names(points))] <- colourLegend
+  }
 
   tri <- ggplot(vert, aes(x, y)) + geom_path() + geom_text(data = labelpoint, aes(label = label)) +
     coord_fixed(ratio = 1/cos(pi/6)) + ggholman.theme
 
-  if(!is.null(colour)) tri <- tri + geom_point(data = points, aes(colour = colour)) else
+  if(!is.null(colour)) tri <- tri + geom_point(data = points, aes_string(colour = colourLegend)) else
     tri <- tri + geom_point(data = points)
 
   if(!is.null(labelPoints)) tri <- tri + geom_text(data = points, aes(label = pointLabel))
