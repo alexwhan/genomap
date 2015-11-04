@@ -259,6 +259,7 @@ genoComp <- function(lgObject, markerOfInterest) {
 #' Plot genotype data for a linkage group
 #'
 #' @param df Sorted data.frame output from /code{genoComp}
+#' @export
 genoPlot <- function(df) {
   df.p <- df %>%
     filter(!is.na(score)) %>%
