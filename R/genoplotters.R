@@ -21,8 +21,9 @@ trixy <- function(df) {
 #'   will be rescaled.
 #' @param colour A vector to be passed to geom_point to colour points. Needs to
 #'   be sorted the same as df, since it is joined by /code{cbind()}.
-#' @param labelPoint A vector of labels for points, if the points in the plot
+#' @param labelPoints A vector of labels for points, if the points in the plot
 #'   should be labelled.
+#' @export
 ggholman <- function(df, colour = NULL, labelPoints = NULL) {
   #check there are three columns
   if(ncol(df) != 3) stop("The df needs to have three columns")
@@ -49,7 +50,7 @@ ggholman <- function(df, colour = NULL, labelPoints = NULL) {
   if(!is.null(colour)) tri <- tri + geom_point(data = points, aes(colour = colour)) else
     tri <- tri + geom_point(data = points)
 
-  if(labelPoints) tri <- tri + geom_text(data = points, aes(label = pointLabel))
+  if(!is.null(labelPoints)) tri <- tri + geom_text(data = points, aes(label = pointLabel))
   return(tri)
 }
 

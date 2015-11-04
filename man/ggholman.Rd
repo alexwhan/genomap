@@ -16,7 +16,7 @@ will be rescaled.}
 \item{colour}{A vector to be passed to geom_point to colour points. Needs to
 be sorted the same as df, since it is joined by /code{cbind()}.}
 
-\item{labelPoint}{A vector of labels for points, if the points in the plot
+\item{labelPoints}{A vector of labels for points, if the points in the plot
 should be labelled.}
 }
 \description{
