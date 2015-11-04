@@ -160,7 +160,6 @@ revmap <- function(map, revgroups) {
 #'   column in map2.
 #' @export
 join2maps <- function(map1, map2, map1markerName, map2markerName, map1distName, map2distName, map1lgName, map2lgName) {
-  require(dplyr)
   map1name <- deparse(substitute(map1))
   map1markerName_ <- deparse(substitute(map1markerName))
   map1distName_ <- deparse(substitute(map1distName))
@@ -224,7 +223,6 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
 #' @param markerOfInterest A string identifying the marker by which the data
 #'   should be sorted
 genoComp <- function(lgObject, markerOfInterest) {
-  require(dplyr)
   df <- as.data.frame(lgObject)
   df$Genotype <- rownames(lgObject)
   dfg <- df %>%
@@ -252,7 +250,6 @@ genoPlot <- function(df) {
 
 #' Compares segregation of markers based on agreement of two markers (population parents)
 genoSeg <- function(df, genos) {
-  require(dplyr)
   df.o <- df %>%
     mutate(ord = H45 == `SWDH0020-1_90K`) %>%
     arrange(desc(ord), H45)
