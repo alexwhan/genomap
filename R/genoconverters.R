@@ -106,6 +106,23 @@ map2df <- function(map) {
   return(mapdf)
 }
 
+#' Convert R/qtl genotyping data into data.frame
+#'
+#' Similar to map2df, but for the genotying values.
+#'
+#' @param map An R/qtl cross object
+#' @export
+map2df <- function(map) {
+  genodf <- lapply(map$geno, function(x) {
+    out <- as.data.frame(x$geno)
+    out$id <- rownames(out)
+    out.g <- gather(out, markerName, score, -id)
+    return(out.g)
+  })
+  genodf <- bind_rows(genodf, .id = "lg")
+  return(genodf)
+}
+
 #' Take output from /code{join2maps()} and a map object to be reversed, and
 #' returns the map object with appropriate groups reversed.
 #'
