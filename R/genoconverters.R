@@ -115,7 +115,7 @@ map2df <- function(map) {
 
 geno2df <- function(map) {
   genodf <- lapply(map$geno, function(x) {
-    out <- as.data.frame(x$geno)
+    out <- as.data.frame(x$data)
     out$id <- rownames(out)
     out.g <- gather(out, markerName, score, -id)
     return(out.g)
