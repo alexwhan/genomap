@@ -112,7 +112,8 @@ map2df <- function(map) {
 #'
 #' @param map An R/qtl cross object
 #' @export
-map2df <- function(map) {
+
+geno2df <- function(map) {
   genodf <- lapply(map$geno, function(x) {
     out <- as.data.frame(x$geno)
     out$id <- rownames(out)
