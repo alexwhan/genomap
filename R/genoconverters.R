@@ -271,7 +271,7 @@ genoComp <- function(lgObject, markerOfInterest) {
     mutate(ord = order(score)) %>%
     arrange(ord)
   dfg$Gen.sort <- factor(dfg$Genotype, levels = ord$Genotype, ordered = TRUE)
-  dfg$Mark.sort <- factor(dfg$markerName, levels = names(lgObject$map, ordered = TRUE))
+  dfg$Mark.sort <- factor(dfg$markerName, levels = names(lgObject$map), ordered = TRUE)
   return(dfg)
 }
 
