@@ -275,18 +275,6 @@ genoComp <- function(lgObject, markerOfInterest) {
   return(dfg)
 }
 
-#' Plot genotype data for a linkage group
-#'
-#' @param df Sorted data.frame output from /code{genoComp}
-#' @export
-genoPlot <- function(df) {
-  df.p <- df %>%
-    filter(!is.na(score)) %>%
-    ggplot(aes(marker, Gen.sort)) + geom_tile(aes(fill = factor(score))) +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45), panel.grid = ggplot2::element_blank(), panel.background = ggplot2::element_blank(), axis.text = ggplot2::element_text(size = 10))
-
-  return(df.p)
-}
 
 #' Compares segregation of markers based on agreement of two markers (population parents)
 genoSeg <- function(df, genos) {

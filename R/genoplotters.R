@@ -65,3 +65,17 @@ ggholman.theme <- ggplot2::theme(panel.background = ggplot2::element_rect(fill =
                         axis.title = ggplot2::element_blank(),
                         axis.text = ggplot2::element_blank(),
                         axis.ticks = ggplot2::element_blank())
+
+#' Plot genotype data for a linkage group
+#'
+#' @param df Sorted data.frame output from /code{genoComp}
+#' @export
+genoPlot <- function(df) {
+  df.p <- df %>%
+    filter(!is.na(score)) %>%
+    ggplot(aes(markerName, Gen.sort)) + geom_tile(aes(fill = factor(score))) +
+    labs(y = "Individual", x = "Marker") +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90), panel.grid = ggplot2::element_blank(), panel.background = ggplot2::element_blank(), axis.text = ggplot2::element_text(size = 10))
+
+  return(df.p)
+}
