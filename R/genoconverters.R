@@ -253,7 +253,7 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
     filter(!is.na(lg))
 }
 
-#' Take a linkage group from a cross object, conver into long form and sort
+#' Take a linkage group from a cross object, convert into long form and sort
 #' according to genotype scores for a marker of interest.
 #'
 #' @param lgObject A linkage group from a cross object. Usually in the form
@@ -261,16 +261,17 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
 #' @param markerOfInterest A string identifying the marker by which the data
 #'   should be sorted
 genoComp <- function(lgObject, markerOfInterest) {
-  df <- as.data.frame(lgObject)
-  df$Genotype <- rownames(lgObject)
+  df <- as.data.frame(lgObject$data)
+  df$Genotype <- rownames(lgObject$data)
   dfg <- df %>%
-    gather(marker, score, -Genotype)
+    gather(markerName, score, -Genotype)
   ord <- dfg %>%
-    filter(marker == markerOfInterest) %>%
+    filter(markerName == markerOfInterest) %>%
     arrange(score) %>%
     mutate(ord = order(score)) %>%
     arrange(ord)
   dfg$Gen.sort <- factor(dfg$Genotype, levels = ord$Genotype, ordered = TRUE)
+  dfg$Mark.sort <- factor(dfg$markerName, levels = names(lgObject$map, ordered = TRUE))
   return(dfg)
 }
 
