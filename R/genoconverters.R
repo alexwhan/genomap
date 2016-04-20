@@ -291,4 +291,6 @@ genoSeg <- function(df, genos) {
     filter(!is.na(score), score != "--") %>%
     ggplot(aes(marker.sort, Genotype)) + geom_tile(aes(fill = factor(score))) +
     ggplot2::theme(axis.text = ggplot2::element_blank(), axis.ticks = ggplot2::element_blank()) + xlab("Marker")
+
+  return(df.p)
 }
