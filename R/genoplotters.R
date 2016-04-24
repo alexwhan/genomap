@@ -31,7 +31,7 @@ ggholman <- function(df, colour = NULL, colourLegend = NULL, labelPoints = NULL)
   if(any(df < 0, na.rm = TRUE)) stop("The data cannot contain negative values")
   #check there are three columns
   if(ncol(df) != 3) stop("The df needs to have three columns")
-  if(any(rowSums(df) - 1 > 1e-06)) {
+  if(any(rowSums(df) - 1 > 1e-06, na.rm = TRUE)) {
     df <- df/rowSums(df)
     warning("Rows do not sum to 1 - rescaling")
   }
