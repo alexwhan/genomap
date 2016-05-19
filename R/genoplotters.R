@@ -1,7 +1,6 @@
 #' Convert trinomial distribution into x y values
-#'
 #' Takes a data.frame of three columns where each row represents a trinomial
-#' distribution. Returns xy coordinates for plotting in a triangle.\
+#' distribution. Returns xy coordinates for plotting in a triangle.
 #'
 #' @param df A data.frame of three columns. Where a row does not sum to 1, it
 #'   will be rescaled.

@@ -48,7 +48,11 @@ isHomo <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
 #' Takes absolute genotype scores and converts to relative scores (AA/AB/BB to
 #' match maternal/het/paternal).
 #'
-#' @param parent1
+#' @param maternal The maternal score
+#' @param paternal The paternal score
+#' @param progeny A vector of progeny scores
+#' @param markerName The name of the marker that the scores are for
+#' @param missingString A string representing a missing score
 #' @export
 convertScore <- function(maternal, paternal, progeny, markerName = "unknown", missingString = "--") {
   #Check both parent scores are homozygous
@@ -293,4 +297,69 @@ genoSeg <- function(df, genos) {
     ggplot2::theme(axis.text = ggplot2::element_blank(), axis.ticks = ggplot2::element_blank()) + xlab("Marker")
 
   return(df.p)
+}
+
+
+#' Converts a character vector of genotype scores into two classes - one of which represents one homozygous state, and the other represents the other homozygous state and all heterozygotes
+#' @param vec A character vector of genotype scores, each of which is made of two characters. An na_string may also be present
+#' @param level Either 1 or 2, indicating which homozygous state is to be compared to the other state/heterozygotes. Default is 1
+#' @param na_string a string representing NA. Default is "u"
+#' @export
+
+make_nptest_classes <- function(vec, level = 1, na_string = "u") {
+  stopifnot(class(vec) == "character")
+  vec[vec == na_string] <- NA
+  vec_fac <- as.factor(vec)
+  if(any(genomap::isHet(vec)) & length(levels(vec_fac)) > 3) {
+    return(rep("too many", length(vec)))
+    #stop("Too many levels in vec")
+  }
+  if(!any(genomap::isHet(vec)) & length(levels(vec_fac)) > 2) {
+    return(rep("too many", length(vec)))
+    #stop("Too many levels in vec")
+  }
+  if(length(levels(vec_fac)) < 2) {
+    return(rep(NA_character_, length(vec)))
+  }
+
+  stopifnot(length(levels(vec_fac)) >= 2)
+
+  if(level == 1) {
+    main_level <- levels(vec_fac)[1]
+    gen_levels <- c(main_level, paste0("not_", main_level))
+    if(any(genomap::isHet(vec))) {
+      out_vec <- as.numeric(vec_fac)
+      out_vec[out_vec > 1] <- 2
+    }
+
+    if(!any(genomap::isHet(vec))) {
+      out_vec <- as.numeric(vec_fac)
+    }
+  }
+
+  if(level == 2) {
+
+    if(any(genomap::isHet(vec))) {
+      if(length(levels(vec_fac)) < 3) {
+        return(rep(NA_character_, length(vec)))
+      } else {
+        main_level <- levels(vec_fac)[3]
+        gen_levels <- c(main_level, paste0("not_", main_level))
+        out_vec <- as.numeric(vec_fac)
+        out_vec[out_vec == 1] <- 2
+        out_vec[out_vec == 3] <- 1
+      }
+    }
+
+    if(!any(genomap::isHet(vec))) {
+      main_level <- levels(vec_fac)[2]
+      gen_levels <- c(main_level, paste0("not_", main_level))
+      out_vec <- as.numeric(vec_fac)
+      out_vec[out_vec == 1] <- 3
+      out_vec[out_vec == 2] <- 1
+      out_vec[out_vec == 3] <- 2
+    }
+  }
+  out_vec <- factor(out_vec, labels = gen_levels)
+  return(as.character(out_vec))
 }

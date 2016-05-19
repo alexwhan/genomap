@@ -6,9 +6,9 @@ Date: 2015-11-03
 Authors@R: c(
     person("Alex", "Whan", , "alexwhan@gmail.com", c("aut", "cre"))
     )
-Depends: 
+Depends:
     R (>= 2.14)
-Imports: 
+Imports:
     dplyr (> 0.4),
     ggplot2
 Description: A set of tools for working with raw genotype calls and genetic
@@ -17,4 +17,6 @@ Description: A set of tools for working with raw genotype calls and genetic
     comparing genetic maps with common markers.
 License: GPL-2
 LazyData: TRUE
-Suggests: testthat
+Suggests:
+    testthat
+RoxygenNote: 5.0.1
