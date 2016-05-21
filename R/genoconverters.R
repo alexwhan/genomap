@@ -99,14 +99,15 @@ convertScore <- function(maternal, paternal, progeny, markerName = "unknown", mi
 #'
 #' @param map An R/qtl cross object
 #' @export
+#' @importFrom magrittr %>%
 map2df <- function(map) {
   mapdf <- lapply(map$geno, function(x) {
     out <- as.data.frame(x$map)
     out$markerName <- rownames(out)
     return(out)
   })
-  mapdf <- bind_rows(mapdf, .id = "lg") %>%
-    rename(mapdist = `x$map`)
+  mapdf <- dplyr::bind_rows(mapdf, .id = "lg") %>%
+    dplyr::rename(mapdist = `x$map`)
   return(mapdf)
 }
 
@@ -121,10 +122,10 @@ geno2df <- function(map) {
   genodf <- lapply(map$geno, function(x) {
     out <- as.data.frame(x$data)
     out$id <- rownames(out)
-    out.g <- gather(out, markerName, score, -id)
+    out.g <- tidyr::gather(out, markerName, score, -id)
     return(out.g)
   })
-  genodf <- bind_rows(genodf, .id = "lg")
+  genodf <- dplyr::bind_rows(genodf, .id = "lg")
   return(genodf)
 }
 
@@ -137,6 +138,7 @@ geno2df <- function(map) {
 #'   in maps.comp_df.
 #' @param revmap a cross object which is to have linkage groups reversed.
 #' @export
+#' @importFrom magrittr %>%
 revmaplgs <- function(maps.comp_df, refmapid, revmapid, revmap) {
   refmapdist_ <- paste0(deparse(substitute(refmapid)), "_mapdist")
   map2dist_ <- paste0(deparse(substitute(revmapid)), "_mapdist")
@@ -144,11 +146,11 @@ revmaplgs <- function(maps.comp_df, refmapid, revmapid, revmap) {
   map2lg_ <- paste0(deparse(substitute(revmapid)), "_lg")
 
   revs <- maps.comp_df %>%
-    group_by_(map2lg_) %>%
-    arrange_(refmapdist_) %>%
-    mutate_(dist2 = map2dist_) %>%
-    summarise(rev = ifelse(cor(1:n(), dist2) < 0, TRUE, FALSE)) %>%
-    filter(rev)
+    dplyr::group_by_(map2lg_) %>%
+    dplyr::arrange_(refmapdist_) %>%
+    dplyr::mutate_(dist2 = map2dist_) %>%
+    dplyr::summarise(rev = ifelse(cor(1:n(), dist2) < 0, TRUE, FALSE)) %>%
+    dplyr::filter(rev)
 
   outmap <- revmap(revmap, revs[[1]])
   return(outmap)
@@ -201,6 +203,7 @@ revmap <- function(map, revgroups) {
 #' @param map2lgName An unquoted string defining the name for the linkage group
 #'   column in map2.
 #' @export
+#' @importFrom magrittr %>%
 join2maps <- function(map1, map2, map1markerName, map2markerName, map1distName, map2distName, map1lgName, map2lgName) {
   map1name <- deparse(substitute(map1))
   map1markerName_ <- deparse(substitute(map1markerName))
@@ -211,13 +214,13 @@ join2maps <- function(map1, map2, map1markerName, map2markerName, map1distName, 
   map2distName_ <- deparse(substitute(map2distName))
   map2lgName_ <- deparse(substitute(map2lgName))
   map1.r <- map1 %>%
-    rename_(.dots = with(map1, setNames(c(map1markerName_, map1distName_, map1lgName_),
+    dplyr::rename_(.dots = with(map1, setNames(c(map1markerName_, map1distName_, map1lgName_),
                                         c("markerName", paste(map1name, c("mapdist", "lg"), sep = "_")))))
   map2.r <- map2 %>%
-    rename_(.dots = with(map2, setNames(c(map2markerName_, map2distName_, map2lgName_),
+    dplyr::rename_(.dots = with(map2, setNames(c(map2markerName_, map2distName_, map2lgName_),
                                         c("markerName", paste(map2name, c("mapdist", "lg"), sep = "_")))))
   out <- map1.r %>%
-    left_join(map2.r)
+    dplyr::left_join(map2.r)
   return(out)
 }
 
@@ -231,30 +234,31 @@ join2maps <- function(map1, map2, map1markerName, map2markerName, map1distName, 
 #' @param reflg_join An unquoted string. The name for the reference linkage group identifier for
 #' joining.
 #' @export
+#' @importFrom magrittr %>%
 longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
   reflg_join_ <- deparse(substitute(reflg_join))
   markerName_ <- deparse(substitute(markerName))
   df$markerName.lg <- paste0(df[[markerName_]], "_", df[[reflg_join_]])
   lgs.g <- df %>%
-    select(contains("_lg"), markerName.lg)
+    dplyr::select(contains("_lg"), markerName.lg)
   names(lgs.g) <- gsub("_.*", "", names(lgs.g))
   lgs.g <- lgs.g %>%
-    gather(source, lg, -contains("markerName.lg"))
+    dplyr::gather(source, lg, -contains("markerName.lg"))
 
   dist.g <- df %>%
-    select(contains("_mapdist"), markerName.lg)
+    dplyr::select(contains("_mapdist"), markerName.lg)
   names(dist.g) <- gsub("_.*", "", names(dist.g))
   dist.g <- dist.g %>%
-    gather(source, mapdist, -contains("markerName.lg"))
+    tidyr::gather(source, mapdist, -contains("markerName.lg"))
 
   lgs.c <- lgs.g %>%
-    inner_join(dist.g)
+    dplyr::inner_join(dist.g)
 
   reflg_facet_ <- deparse(substitute(reflg_facet))
   out.df <- df %>%
-    select_(reflg_facet_, "markerName.lg") %>%
-    left_join(lgs.c) %>%
-    filter(!is.na(lg))
+    dplyr::select_(reflg_facet_, "markerName.lg") %>%
+    dplyr::left_join(lgs.c) %>%
+    dplyr::filter(!is.na(lg))
 }
 
 #' Take a linkage group from a cross object, convert into long form and sort
@@ -264,41 +268,21 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
 #'   cross$geno$name
 #' @param markerOfInterest A string identifying the marker by which the data
 #'   should be sorted
+#'   @importFrom magrittr %>%
 genoComp <- function(lgObject, markerOfInterest) {
   df <- as.data.frame(lgObject$data)
   df$Genotype <- rownames(lgObject$data)
   dfg <- df %>%
-    gather(markerName, score, -Genotype)
+    tidyr::gather(markerName, score, -Genotype)
   ord <- dfg %>%
-    filter(markerName == markerOfInterest) %>%
-    arrange(score) %>%
-    mutate(ord = order(score)) %>%
-    arrange(ord)
+    dplyr::filter(markerName == markerOfInterest) %>%
+    dplyr::arrange(score) %>%
+    dplyr::mutate(ord = order(score)) %>%
+    dplyr::arrange(ord)
   dfg$Gen.sort <- factor(dfg$Genotype, levels = ord$Genotype, ordered = TRUE)
   dfg$Mark.sort <- factor(dfg$markerName, levels = names(lgObject$map), ordered = TRUE)
   return(dfg)
 }
-
-
-#' Compares segregation of markers based on agreement of two markers (population parents)
-genoSeg <- function(df, genos) {
-  df.o <- df %>%
-    mutate(ord = H45 == `SWDH0020-1_90K`) %>%
-    arrange(desc(ord), H45)
-
-  dfg <- df %>%
-    gather(Genotype, score, -markerName)
-
-  dfg$marker.sort <- factor(dfg$markerName, levels = rev(df.o$markerName), ordered = T)
-
-  df.p <- dfg %>%
-    filter(!is.na(score), score != "--") %>%
-    ggplot(aes(marker.sort, Genotype)) + geom_tile(aes(fill = factor(score))) +
-    ggplot2::theme(axis.text = ggplot2::element_blank(), axis.ticks = ggplot2::element_blank()) + xlab("Marker")
-
-  return(df.p)
-}
-
 
 #' Converts a character vector of genotype scores into two classes - one of which represents one homozygous state, and the other represents the other homozygous state and all heterozygotes
 #' @param vec A character vector of genotype scores, each of which is made of two characters. An na_string may also be present
