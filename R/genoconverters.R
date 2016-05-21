@@ -121,8 +121,9 @@ map2df <- function(map) {
 geno2df <- function(map) {
   genodf <- lapply(map$geno, function(x) {
     out <- as.data.frame(x$data)
+    markers <- colnames(out)
     out$id <- rownames(out)
-    out.g <- tidyr::gather(out, markerName, score, -id)
+    out.g <- tidyr::gather_(out, "markerName", "score", colnames)
     return(out.g)
   })
   genodf <- dplyr::bind_rows(genodf, .id = "lg")
@@ -233,6 +234,7 @@ join2maps <- function(map1, map2, map1markerName, map2markerName, map1distName, 
 #' faceting.
 #' @param reflg_join An unquoted string. The name for the reference linkage group identifier for
 #' joining.
+#' @param markerName An unquoted string. The name of the variable giving marker names.
 #' @export
 #' @importFrom magrittr %>%
 longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
@@ -243,7 +245,7 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
     dplyr::select(contains("_lg"), markerName.lg)
   names(lgs.g) <- gsub("_.*", "", names(lgs.g))
   lgs.g <- lgs.g %>%
-    dplyr::gather(source, lg, -contains("markerName.lg"))
+    tidyr::gather(source, lg, -contains("markerName.lg"))
 
   dist.g <- df %>%
     dplyr::select(contains("_mapdist"), markerName.lg)
@@ -273,11 +275,14 @@ genoComp <- function(lgObject, markerOfInterest) {
   df <- as.data.frame(lgObject$data)
   df$Genotype <- rownames(lgObject$data)
   dfg <- df %>%
-    tidyr::gather(markerName, score, -Genotype)
+    tidyr::gather_("markerName", "score",
+                   dplyr::select_vars_(names(df),
+                                       names(df),
+                                       exclude = "Genotype"))
   ord <- dfg %>%
-    dplyr::filter(markerName == markerOfInterest) %>%
-    dplyr::arrange(score) %>%
-    dplyr::mutate(ord = order(score)) %>%
+    dplyr::filter_("markerName" == markerOfInterest) %>%
+    dplyr::arrange_("score") %>%
+    dplyr::mutate_(ord = order(as.name("score"))) %>%
     dplyr::arrange(ord)
   dfg$Gen.sort <- factor(dfg$Genotype, levels = ord$Genotype, ordered = TRUE)
   dfg$Mark.sort <- factor(dfg$markerName, levels = names(lgObject$map), ordered = TRUE)
