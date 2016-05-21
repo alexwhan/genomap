@@ -25,6 +25,7 @@ trixy <- function(df) {
 #' @param labelPoints A vector of labels for points, if the points in the plot
 #'   should be labelled.
 #' @export
+#' @importFrom ggplot2 aes
 ggholman <- function(df, colour = NULL, colourLegend = NULL, labelPoints = NULL) {
   #Check there aren't any negative values
   if(any(df < 0, na.rm = TRUE)) stop("The data cannot contain negative values")
@@ -49,13 +50,14 @@ ggholman <- function(df, colour = NULL, colourLegend = NULL, labelPoints = NULL)
     names(points)[grepl("colour", names(points))] <- colourLegend
   }
 
-  tri <- ggplot(vert, aes(x, y)) + geom_path() + geom_text(data = labelpoint, aes(label = label)) +
-    coord_fixed(ratio = 1/cos(pi/6)) + ggholman.theme
+  tri <- ggplot2::ggplot(vert, aes(x, y)) + ggplot2::geom_path() +
+    ggplot2::geom_text(data = labelpoint, aes(label = label)) +
+    ggplot2::coord_fixed(ratio = 1/cos(pi/6)) + ggholman.theme
 
-  if(!is.null(colour)) tri <- tri + geom_point(data = points, aes_string(colour = colourLegend)) else
-    tri <- tri + geom_point(data = points)
+  if(!is.null(colour)) tri <- tri + ggplot2::geom_point(data = points, aes_string(colour = colourLegend)) else
+    tri <- tri + ggplot2::geom_point(data = points)
 
-  if(!is.null(labelPoints)) tri <- tri + geom_text(data = points, aes(label = pointLabel))
+  if(!is.null(labelPoints)) tri <- tri + ggplot2::geom_text(data = points, aes(label = pointLabel))
   return(tri)
 }
 
@@ -69,12 +71,37 @@ ggholman.theme <- ggplot2::theme(panel.background = ggplot2::element_rect(fill =
 #'
 #' @param df Sorted data.frame output from /code{genoComp}
 #' @export
+#' @importFrom magrittr %>%
+#' @importFrom ggplot2 aes
 genoPlot <- function(df) {
   df.p <- df %>%
-    filter(!is.na(score)) %>%
-    ggplot(aes(markerName, Gen.sort)) + geom_tile(aes(fill = factor(score))) +
-    labs(y = "Individual", x = "Marker") +
+    dplyr::filter(!is.na(score)) %>%
+    ggplot2::ggplot(aes(markerName, Gen.sort)) + ggplot2::geom_tile(aes(fill = factor(score))) +
+    ggplot2::labs(y = "Individual", x = "Marker") +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90), panel.grid = ggplot2::element_blank(), panel.background = ggplot2::element_blank(), axis.text = ggplot2::element_text(size = 10))
+
+  return(df.p)
+}
+
+#' Compares segregation of markers based on agreement of two markers (population parents)
+#' @param df A data.frame
+#' @param genos Not currently used
+#' @importFrom magrittr %>%
+#' @importFrom ggplot2 aes
+genoSeg <- function(df, genos) {
+  df.o <- df %>%
+    dplyr::mutate(ord = H45 == `SWDH0020-1_90K`) %>%
+    dplyr::arrange(desc(ord), H45)
+
+  dfg <- df %>%
+    tidyr::gather(Genotype, score, -markerName)
+
+  dfg$marker.sort <- factor(dfg$markerName, levels = rev(df.o$markerName), ordered = T)
+
+  df.p <- dfg %>%
+    dplyr::filter(!is.na(score), score != "--") %>%
+    ggplot2::ggplot(aes(marker.sort, Genotype)) + ggplot2::geom_tile(aes(fill = factor(score))) +
+    ggplot2::theme(axis.text = ggplot2::element_blank(), axis.ticks = ggplot2::element_blank()) + ggplot2::xlab("Marker")
 
   return(df.p)
 }
