@@ -107,7 +107,7 @@ map2df <- function(map) {
     return(out)
   })
   mapdf <- dplyr::bind_rows(mapdf, .id = "lg") %>%
-    dplyr::rename(mapdist = `x$map`)
+    dplyr::rename_("mapdist" = quote(`x$map`))
   return(mapdf)
 }
 
@@ -146,11 +146,15 @@ revmaplgs <- function(maps.comp_df, refmapid, revmapid, revmap) {
   refmaplg_ <- paste0(deparse(substitute(refmapid)), "_lg")
   map2lg_ <- paste0(deparse(substitute(revmapid)), "_lg")
 
+  dist2_var <- "dist2"
+
   revs <- maps.comp_df %>%
     dplyr::group_by_(map2lg_) %>%
     dplyr::arrange_(refmapdist_) %>%
     dplyr::mutate_(dist2 = map2dist_) %>%
-    dplyr::summarise(rev = ifelse(cor(1:n(), dist2) < 0, TRUE, FALSE)) %>%
+    dplyr::summarise(rev = ifelse(cor(1:dplyr::n(),
+                                      lazyeval::interp(~var, var = as.name(dist2_var))) < 0,
+                                      TRUE, FALSE)) %>%
     dplyr::filter(rev)
 
   outmap <- revmap(revmap, revs[[1]])
@@ -242,16 +246,19 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
   markerName_ <- deparse(substitute(markerName))
   df$markerName.lg <- paste0(df[[markerName_]], "_", df[[reflg_join_]])
   lgs.g <- df %>%
-    dplyr::select(contains("_lg"), markerName.lg)
+    dplyr::select_(names(df)[grepl("_lg", names(df))], "markerName.lg")
+
   names(lgs.g) <- gsub("_.*", "", names(lgs.g))
+
   lgs.g <- lgs.g %>%
-    tidyr::gather(source, lg, -contains("markerName.lg"))
+    tidyr::gather_("source", "lg", names(lgs.g)[!grepl("markerName.lg", names(lgs.g))])
 
   dist.g <- df %>%
-    dplyr::select(contains("_mapdist"), markerName.lg)
+    dplyr::select_(names(df)[grepl("_mapdist", names(df))], "markerName.lg")
   names(dist.g) <- gsub("_.*", "", names(dist.g))
   dist.g <- dist.g %>%
-    tidyr::gather(source, mapdist, -contains("markerName.lg"))
+    tidyr::gather_("source", "mapdist",
+                   names(dist.g)[!grepl("markerName.lg", names(dist.g))])
 
   lgs.c <- lgs.g %>%
     dplyr::inner_join(dist.g)
@@ -259,18 +266,19 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
   reflg_facet_ <- deparse(substitute(reflg_facet))
   out.df <- df %>%
     dplyr::select_(reflg_facet_, "markerName.lg") %>%
-    dplyr::left_join(lgs.c) %>%
-    dplyr::filter(!is.na(lg))
+    dplyr::left_join(lgs.c)
+  out.df <- out.df[!is.na(out.df$lg),]
+
 }
 
 #' Take a linkage group from a cross object, convert into long form and sort
 #' according to genotype scores for a marker of interest.
 #'
 #' @param lgObject A linkage group from a cross object. Usually in the form
-#'   cross$geno$name
+#'   cross$geno$name.
 #' @param markerOfInterest A string identifying the marker by which the data
-#'   should be sorted
-#'   @importFrom magrittr %>%
+#'   should be sorted.
+#' @importFrom magrittr %>%
 genoComp <- function(lgObject, markerOfInterest) {
   df <- as.data.frame(lgObject$data)
   df$Genotype <- rownames(lgObject$data)
