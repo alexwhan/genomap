@@ -14,6 +14,8 @@ faceting.}
 
 \item{reflg_join}{An unquoted string. The name for the reference linkage group identifier for
 joining.}
+
+\item{markerName}{An unquoted string. The name of the variable giving marker names.}
 }
 \description{
 Refers to a reference linkage group for facetting, and one for joining,

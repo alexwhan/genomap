@@ -9,10 +9,10 @@ genoComp(lgObject, markerOfInterest)
 }
 \arguments{
 \item{lgObject}{A linkage group from a cross object. Usually in the form
-cross$geno$name}
+cross$geno$name.}
 
 \item{markerOfInterest}{A string identifying the marker by which the data
-should be sorted}
+should be sorted.}
 }
 \description{
 Take a linkage group from a cross object, convert into long form and sort
