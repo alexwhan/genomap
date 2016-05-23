@@ -80,8 +80,8 @@ convertScore <- function(maternal, paternal, progeny, markerName = "unknown", mi
   missing <- sum(progeny == missingString)/length(progeny)
   other <- sum(is.na(progeny.out))/length(progeny.out)
 
-  maternal.out <- setNames("AA", names(maternal))
-  paternal.out <- setNames("BB", names(paternal))
+  maternal.out <- stats::setNames("AA", names(maternal))
+  paternal.out <- stats::setNames("BB", names(paternal))
   names(progeny.out) <- names(progeny)
 
   return(c(markerName, AA = maternal.prop,
@@ -152,7 +152,7 @@ revmaplgs <- function(maps.comp_df, refmapid, revmapid, revmap) {
     dplyr::group_by_(map2lg_) %>%
     dplyr::arrange_(refmapdist_) %>%
     dplyr::mutate_(dist2 = map2dist_) %>%
-    dplyr::summarise(rev = ifelse(cor(1:dplyr::n(),
+    dplyr::summarise(rev = ifelse(stats::cor(1:dplyr::n(),
                                       lazyeval::interp(~var, var = as.name(dist2_var))) < 0,
                                       TRUE, FALSE)) %>%
     dplyr::filter(rev)
@@ -219,10 +219,10 @@ join2maps <- function(map1, map2, map1markerName, map2markerName, map1distName, 
   map2distName_ <- deparse(substitute(map2distName))
   map2lgName_ <- deparse(substitute(map2lgName))
   map1.r <- map1 %>%
-    dplyr::rename_(.dots = with(map1, setNames(c(map1markerName_, map1distName_, map1lgName_),
+    dplyr::rename_(.dots = with(map1, stats::setNames(c(map1markerName_, map1distName_, map1lgName_),
                                         c("markerName", paste(map1name, c("mapdist", "lg"), sep = "_")))))
   map2.r <- map2 %>%
-    dplyr::rename_(.dots = with(map2, setNames(c(map2markerName_, map2distName_, map2lgName_),
+    dplyr::rename_(.dots = with(map2, stats::setNames(c(map2markerName_, map2distName_, map2lgName_),
                                         c("markerName", paste(map2name, c("mapdist", "lg"), sep = "_")))))
   out <- map1.r %>%
     dplyr::left_join(map2.r)
