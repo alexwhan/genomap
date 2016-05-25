@@ -18,6 +18,7 @@
 #' isHet("GT", "[AB]")
 isHet <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
   if(any(nchar(score) != 2)) stop("Expecting a string of length 2")
+  if(!nonMatch %in% c("false", "error")) stop("nonMatch should be either 'false' or 'error'")
   if(nonMatch == "error" & any(grepl(sub("^(\\[)", "\\1^", characterClass), score))) {
     stop("There are genotype scores that do not match the character class")
   }
@@ -36,6 +37,7 @@ isHet <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
 #' @export
 isHomo <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
   if(any(nchar(score) != 2)) stop("Expecting a string of length 2")
+  if(!nonMatch %in% c("false", "error")) stop("nonMatch should be either 'false' or 'error'")
   if(nonMatch == "error" & any(grepl(sub("^(\\[)", "\\1^", characterClass), score))) {
     stop("There are genotype scores that do not match the character class")
   }
