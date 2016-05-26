@@ -50,13 +50,16 @@ isHomo <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
 #' Takes absolute genotype scores and converts to relative scores (AA/AB/BB to
 #' match maternal/het/paternal).
 #'
-#' @param maternal The maternal score
-#' @param paternal The paternal score
+#' @param maternal The maternal score. A string with nchar(maternal) == 2
+#' @param paternal The paternal score. A string with nchar(paternal) == 2
 #' @param progeny A vector of progeny scores
 #' @param markerName The name of the marker that the scores are for
 #' @param missingString A string representing a missing score
 #' @export
 convertScore <- function(maternal, paternal, progeny, markerName = "unknown", missingString = "--") {
+  if(class(maternal) != "character" | class(paternal) != "character") stop("maternal of paternal score is not character class")
+  if(length(maternal) != 1) stop("maternal score is not of length == 1")
+  if(length(paternal) != 1) stop("paternal score is not of length == 1")
   #Check both parent scores are homozygous
   if(any(isHet(c(maternal, paternal)))) stop("Parental scores are not homozygous")
   #check both parent scores are informative
@@ -79,19 +82,27 @@ convertScore <- function(maternal, paternal, progeny, markerName = "unknown", mi
   maternal.prop <- sum(progeny == maternal)/progeny.total
   paternal.prop <- sum(progeny == paternal)/progeny.total
   het.prop <- sum(progeny %in% c(hetmp, hetpm))/progeny.total
+  minor.allele <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
+                         ifelse(maternal.prop < paternal.prop, "AA", 
+                                ifelse(maternal.prop == paternal.prop, "equal", "BB")), NA)
+  minor.allele.freq <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))), 
+                              c(maternal.prop, paternal.prop)[which.min(c(maternal.prop, paternal.prop))], NA)
   missing <- sum(progeny == missingString)/length(progeny)
   other <- sum(is.na(progeny.out))/length(progeny.out)
 
   maternal.out <- stats::setNames("AA", names(maternal))
   paternal.out <- stats::setNames("BB", names(paternal))
   names(progeny.out) <- names(progeny)
+  
 
-  return(c(markerName, AA = maternal.prop,
+  return(data.frame(markerName = markerName, AA = maternal.prop,
            AB = het.prop,
            BB = paternal.prop,
            missing = missing,
            other = other,
-           maternal.out, paternal.out, progeny.out))
+           minor_allele = minor.allele,
+           minor_allele_freq = minor.allele.freq,
+           progeny_scores = I(list(progeny.out))))
 }
 
 
