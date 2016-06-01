@@ -5,6 +5,9 @@
 #' @param df A data.frame of three columns. Where a row does not sum to 1, it
 #'   will be rescaled.
 trixy <- function(df) {
+  if(!("data.frame" %in% class(df))) stop("Input was not a dataframe")
+  if(ncol(df) != 3) stop("There are not 3 columns in the input")
+  if(any(unlist(lapply(df, class)) != "numeric")) stop("At least one input variable is not numeric")
   halfheight <- cos(pi/4)/2
   xy <- data.frame(x = (df[[1]] * (-0.5) + df[[3]] * 0.5),
                    y = (df[[1]] * (-halfheight) + df[[2]] * halfheight + df[[3]] * (-halfheight)))
@@ -26,7 +29,7 @@ trixy <- function(df) {
 #'   should be labelled.
 #' @export
 #' @importFrom ggplot2 aes_string
-ggholman <- function(df, colour = NULL, colourLegend = NULL, labelPoints = NULL) {
+ggholmans <- function(df, colour = NULL, colourLegend = NULL, labelPoints = NULL) {
   #Check there aren't any negative values
   if(any(df < 0, na.rm = TRUE)) stop("The data cannot contain negative values")
   #check there are three columns
@@ -52,7 +55,7 @@ ggholman <- function(df, colour = NULL, colourLegend = NULL, labelPoints = NULL)
 
   tri <- ggplot2::ggplot(vert, aes_string("x", "y")) + ggplot2::geom_path() +
     ggplot2::geom_text(data = labelpoint, aes_string(label = "label")) +
-    ggplot2::coord_fixed(ratio = 1/cos(pi/6)) + ggholman.theme
+    ggplot2::coord_fixed(ratio = 1/cos(pi/6)) + ggholmans.theme
 
   if(!is.null(colour)) tri <- tri + ggplot2::geom_point(data = points, aes_string(colour = colourLegend)) else
     tri <- tri + ggplot2::geom_point(data = points)
@@ -62,8 +65,27 @@ ggholman <- function(df, colour = NULL, colourLegend = NULL, labelPoints = NULL)
   return(tri)
 }
 
+#' ONLY FOR BACKWARDS COMPATIBILITY - Produce a plot of a trinomial distribution in a Holmans' triangle ' ' Takes a
+#' data.frame of three columns and returns a triangle plot with a point for each
+#' row, and positioned between the vertices based on the trinomial distribution.
+#' After broman::triplot
+#'
+#' @param df A data.frame of three columns. Where a row does not sum to 1, it
+#'   will be rescaled. Negative values will cause an error.
+#' @param colour A vector to be passed to geom_point to colour points. Needs to
+#'   be sorted the same as df, since it is joined by /code{cbind()}.
+#' @param colourLegend A character string to be used as a legend label if points
+#'   are coloured.
+#' @param labelPoints A vector of labels for points, if the points in the plot
+#'   should be labelled.
+#' @export
+#' @importFrom ggplot2 aes_string
+ggholman <- function(df, colour = NULL, colourLegend = NULL, labelPoints = NULL) {
+  ggholmans(df, colour, colourLegend, labelPoints)
+}
+
 #' A theme for trinomial plots
-ggholman.theme <- ggplot2::theme(panel.background = ggplot2::element_rect(fill = "white"),
+ggholmans.theme <- ggplot2::theme(panel.background = ggplot2::element_rect(fill = "white"),
                         axis.title = ggplot2::element_blank(),
                         axis.text = ggplot2::element_blank(),
                         axis.ticks = ggplot2::element_blank())
