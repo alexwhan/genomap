@@ -9,6 +9,10 @@ trixy <- function(df) {
   if(ncol(df) != 3) stop("There are not 3 columns in the input")
   if(any(unlist(lapply(df, class)) != "numeric")) stop("At least one input variable is not numeric")
   halfheight <- cos(pi/4)/2
+  if(any(rowSums(df) - 1 > 1e-06, na.rm = TRUE)) {
+    df <- df/rowSums(df)
+    warning("Rows do not sum to 1 - rescaling")
+  }
   xy <- data.frame(x = (df[[1]] * (-0.5) + df[[3]] * 0.5),
                    y = (df[[1]] * (-halfheight) + df[[2]] * halfheight + df[[3]] * (-halfheight)))
   return(xy)
