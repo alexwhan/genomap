@@ -1,6 +1,9 @@
+library(dplyr)
+library(tidyr)
+library(purrr)
 context("converting genotyping scores")
 
-load("../tests/test-data/genotype_raw_df.rda")
+load("../test_data/genotype_raw_df.rda")
 test_that("isHet works", {
   expect_false(isHet("AA"))
   expect_true(isHet("AG"))
@@ -19,8 +22,16 @@ test_that("isHomo works", {
   expect_warning(isHomo(11))
 })
 
-temp <- genotype_raw_df %>% convert_rel(markerName, parent1, parent2)
-
-test_that("convert_rel converts correctly") {
+test_that("convert_rel converts correctly", {
   expect_error(convert_rel(genotype_raw_df))
-}
+})
+
+test_that("convertScore works manually", {
+  expect_equal_to_reference({
+    manual_convert <- genotype_raw_df %>%
+      dplyr::rowwise() %>%
+      mutate(new = map(parent1, genomap:::convertScore, paternal = parent2, progeny = c(prog1, prog2))) %>%
+      select(markerName, new) %>%
+      unnest()
+  }, "convertScore_manual.rds")
+})
