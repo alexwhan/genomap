@@ -92,7 +92,7 @@ convert_rel_ <- function(data, markerName_, maternal_, paternal_, progeny_cols_,
 convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, progeny_cols_,
                                     missingString = "--") {
   if (length(progeny_cols_) == 0) {
-    message("No progeny columns were defined, return original data frame")
+    warning("No progeny columns were defined, return original data frame")
     return(data)
   }
 
@@ -106,30 +106,55 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
     stop("Progeny columns are not all character class")
   }
 
+  maternal_idx <- match(maternal_, names(data))
+  if (!inherits(data[[maternal_]], "character")) {
+    stop("The maternal column is not of class character")
+  }
+  if (any(nchar(data[data[[maternal_]] != missingString, maternal_idx]) > 2)) {
+    stop("There are non-missing maternal scores that have more than two character")
+  }
+
+  paternal_idx <- patch(paternal_, names(data))
+  if (!inherits(data[[paternal_]], "character")) {
+    stop("The paternal column is not of class character")
+  }
+  if (any(nchar(data[data[[paternal_]] != missingString, paternal_idx]) > 2)) {
+    stop("There are non-missing paternal scores that have more than two characters")
+  }
+
+
 
 }
 
-convertScore <- function() {
-  if(class(data[[maternal_]]) != "character" | class(data[[paternal_]]) != "character") stop("maternal of paternal score is not character class")
-  if(any(data[[maternal_]]) != 1) stop("maternal score is not of length == 1")
-  if(length(paternal) != 1) stop("paternal score is not of length == 1")
+#' Converts a single marker
+#'
+#' @param maternal,paternal A two character string, or missingString value
+#' @param progeny A character vector of progeny scores
+#' @param missingString A string defining missing scores
+#' @export
+convertScore <- function(maternal, paternal, progeny, missingString = "--") {
+
+  progeny.out <- vector(mode = "character", length = length(progeny))
+
+  if(length(paternal) != 1)
   #Check both parent scores are homozygous
-  if(any(isHet(c(maternal, paternal)))) stop("Parental scores are not homozygous")
+  if(any(isHet(c(maternal, paternal)))) progeny.out[1:length(progeny)] <- NA
   #check both parent scores are informative
-  if(any(grepl(missingString, c(maternal, paternal)))) stop("Parental scores are not fully informative")
+  if(any(grepl(missingString, c(maternal, paternal)))) progeny.out[1:length(progeny)] <- NA
   #Check if any maternal equal paternal
-  if(any(maternal == paternal)) stop("Some parental scores are non-segregating")
+  if(any(maternal == paternal)) progeny.out[1:length(progeny)] <- NA
 
   #Create possible het codes from paternal
   #This is to avoid a progeny call that doesn't match parentals being called AB
   hetmp <- paste0(sub("^([[:alnum:]]).", "\\1", maternal), sub("^([[:alnum:]]).", "\\1", paternal))
   hetpm <- paste0(sub("^([[:alnum:]]).", "\\1", paternal), sub("^([[:alnum:]]).", "\\1", maternal))
 
-  progeny.out <- vector(mode = "character", length = length(progeny))
   progeny.out[progeny == maternal] <- "AA"
   progeny.out[progeny == paternal] <- "BB"
   progeny.out[progeny == missingString] <- missingString
   progeny.out[progeny %in% c(hetmp, hetpm)] <- "AB"
+  other <- sum(progeny.out == "")/length(progeny.out)
+  progeny.out[progeny.out == ""] <- NA
 
   progeny.total <- sum(progeny %in% c(maternal, paternal, hetmp, hetpm))
   maternal.prop <- sum(progeny == maternal)/progeny.total
@@ -141,21 +166,20 @@ convertScore <- function() {
   minor.allele.freq <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
                               c(maternal.prop, paternal.prop)[which.min(c(maternal.prop, paternal.prop))], NA)
   missing <- sum(progeny == missingString)/length(progeny)
-  other <- sum(is.na(progeny.out))/length(progeny.out)
 
   maternal.out <- stats::setNames("AA", names(maternal))
   paternal.out <- stats::setNames("BB", names(paternal))
   names(progeny.out) <- names(progeny)
 
 
-  return(data.frame(markerName = markerName, AA = maternal.prop,
+  return(data.frame(AA = maternal.prop,
            AB = het.prop,
            BB = paternal.prop,
            missing = missing,
            other = other,
            minor_allele = minor.allele,
-           minor_allele_freq = minor.allele.freq,
-           progeny_scores = I(list(progeny.out))))
+           minor_allele_freq = minor.allele.freq) %>%
+           cbind.data.frame(t(progeny.out)))
 }
 
 

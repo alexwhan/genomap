@@ -1,5 +1,6 @@
 context("converting genotyping scores")
 
+load("../tests/test-data/genotype_raw_df.rda")
 test_that("isHet works", {
   expect_false(isHet("AA"))
   expect_true(isHet("AG"))
@@ -18,3 +19,8 @@ test_that("isHomo works", {
   expect_warning(isHomo(11))
 })
 
+temp <- genotype_raw_df %>% convert_rel(markerName, parent1, parent2)
+
+test_that("convert_rel converts correctly") {
+  expect_error(convert_rel(genotype_raw_df))
+}
