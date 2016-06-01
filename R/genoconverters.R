@@ -110,16 +110,16 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
   if (!inherits(data[[maternal_]], "character")) {
     stop("The maternal column is not of class character")
   }
-  if (any(nchar(data[data[[maternal_]] != missingString, maternal_idx]) > 2)) {
-    stop("There are non-missing maternal scores that have more than two character")
+  if (any(unlist(nchar(data[data[[maternal_]] != missingString, maternal_idx])) != 2)) {
+    stop("There are non-missing maternal scores that have more or less than two characters")
   }
 
   paternal_idx <- patch(paternal_, names(data))
   if (!inherits(data[[paternal_]], "character")) {
     stop("The paternal column is not of class character")
   }
-  if (any(nchar(data[data[[paternal_]] != missingString, paternal_idx]) > 2)) {
-    stop("There are non-missing paternal scores that have more than two characters")
+  if (any(unlist(nchar(data[data[[paternal_]] != missingString, paternal_idx])) != 2)) {
+    stop("There are non-missing paternal scores that have more or less than two characters")
   }
 
 
