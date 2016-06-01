@@ -17,6 +17,7 @@
 #' isHet(c("AA", "AB", "BB"))
 #' isHet("GT", "[AB]")
 isHet <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
+  if(class(score) == "numeric") warning("Numeric input will be coerced to character")
   if(any(nchar(score) != 2)) stop("Expecting a string of length 2")
   if(!nonMatch %in% c("false", "error")) stop("nonMatch should be either 'false' or 'error'")
   if(nonMatch == "error" & any(grepl(sub("^(\\[)", "\\1^", characterClass), score))) {
@@ -36,6 +37,7 @@ isHet <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
 #'   or throw an error if scores do not match characterClass.
 #' @export
 isHomo <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
+  if(class(score) == "numeric") warning("Numeric input will be coerced to character")
   if(any(nchar(score) != 2)) stop("Expecting a string of length 2")
   if(!nonMatch %in% c("false", "error")) stop("nonMatch should be either 'false' or 'error'")
   if(nonMatch == "error" & any(grepl(sub("^(\\[)", "\\1^", characterClass), score))) {
