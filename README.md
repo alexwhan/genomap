@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/alexwhan/genomap.svg?branch=master)](https://travis-ci.org/alexwhan/genomap)
-[![Coverage Status](https://img.shields.io/codecov/c/github/NA/NA/master.svg)](https://codecov.io/github/NA/NA?branch=master)
+[![Coverage Status](https://img.shields.io/codecov/c/github/alexwhan/genomap/master.svg)](https://codecov.io/github/alexwhan/genomap/?branch=master)
 
 # genomap
 
