@@ -179,7 +179,8 @@ convertScore <- function(maternal, paternal, progeny, missingString = "--") {
            other = other,
            minor_allele = minor.allele,
            minor_allele_freq = minor.allele.freq) %>%
-           cbind.data.frame(t(progeny.out)))
+           cbind.data.frame(t(progeny.out)) %>%
+           tbl_df)
 }
 
 
