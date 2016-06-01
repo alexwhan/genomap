@@ -21,5 +21,6 @@ Description: A set of tools for working with raw genotype calls and genetic
 License: GPL-2
 LazyData: TRUE
 Suggests:
-    testthat
+    testthat,
+    covr
 RoxygenNote: 5.0.1
