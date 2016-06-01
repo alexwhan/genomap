@@ -122,7 +122,14 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
     stop("There are non-missing paternal scores that have more or less than two characters")
   }
 
-
+  out_data <- data %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(converted = purrr::map(
+      paternal
+    ))
+    mutate(new = map(parent1, genomap:::convertScore, paternal = parent2, progeny = c(prog1, prog2))) %>%
+    select(markerName, new) %>%
+    unnest()
 
 }
 
@@ -180,7 +187,7 @@ convertScore <- function(maternal, paternal, progeny, missingString = "--") {
            minor_allele = minor.allele,
            minor_allele_freq = minor.allele.freq) %>%
            cbind.data.frame(t(progeny.out)) %>%
-           tbl_df)
+           dplyr::tbl_df)
 }
 
 
