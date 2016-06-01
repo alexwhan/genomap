@@ -70,7 +70,7 @@ convert_rel <- function(data, markerName, maternal, paternal, ..., missingString
     progeny_cols_ <- unname(dplyr::select_vars(colnames(data), ...))
   }
 
-  convert_rel_(data, markerName, maternal, paternal, progeny_cols_, missingString)
+  convert_rel_(data, markerName_, maternal_, paternal_, progeny_cols_, missingString)
 }
 
 #' Convert absolute scores to relative (standard-evaluation)
