@@ -7,3 +7,5 @@ col_name <- function(x, default = stop("Please supply column name", call. = FALS
 
   stop("Invalid column specification", call. = FALSE)
 }
+
+n_dots <- function(...) nargs()
