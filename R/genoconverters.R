@@ -49,18 +49,69 @@ isHomo <- function(score, characterClass = "[[:alnum:]]", nonMatch = "false") {
 
 #' Convert absolute scores to relative
 #'
-#' Takes absolute genotype scores and converts to relative scores (AA/AB/BB to
+#' Works one marker at a time. Takes absolute genotype scores and converts to relative scores (AA/AB/BB to
 #' match maternal/het/paternal).
 #'
-#' @param maternal The maternal score. A string with nchar(maternal) == 2
-#' @param paternal The paternal score. A string with nchar(paternal) == 2
-#' @param progeny A vector of progeny scores
-#' @param markerName The name of the marker that the scores are for
+#' @param data A data frame
+#' @param markerName Specification of the column containing the marker name
+#' @param maternal Specification of the column containing the maternal score
+#' @param paternal Specification of the column containing the paternal score
+#' @param ... Specification of the columns containing progeny scores
 #' @param missingString A string representing a missing score
 #' @export
-convertScore <- function(maternal, paternal, progeny, markerName = "unknown", missingString = "--") {
-  if(class(maternal) != "character" | class(paternal) != "character") stop("maternal of paternal score is not character class")
-  if(length(maternal) != 1) stop("maternal score is not of length == 1")
+convert_rel <- function(data, markerName, maternal, paternal, ..., missingString = "--") {
+  markerName_ <- col_name(substitute(markerName))
+  maternal_ <- col_name(substitute(maternal))
+  paternal_ <- col_name(substitute(paternal))
+
+  if (n_dots(...) == 0) {
+    progeny_cols_ <- setdiff(colnames(data), c(markerName_, maternal_, paternal_))
+  } else {
+    progeny_cols_ <- unname(dplyr::select_vars(colnames(data), ...))
+  }
+
+  convert_rel_(data, markerName, maternal, paternal, progeny_cols_, missingString)
+}
+
+#' Convert absolute scores to relative (standard-evaluation)
+#'
+#' This is a S3 generic.
+#'
+#' @param data A data frame
+#' @param markerName_,maternal_,paternal_ Strings giving names of marker
+#'    maternal and paternal columns
+#' @param progeny_cols_ Character vector giving column names of progeny scores
+#' @param missingString A string representing a missing score
+#' @keywords internal
+#' @export
+convert_rel_ <- function(data, markerName_, maternal_, paternal_, progeny_cols_, missingString = "--") {
+  UseMethod("convert_rel_")
+}
+
+#' @export
+convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, progeny_cols_,
+                                    missingString = "--") {
+  if (length(progeny_cols_) == 0) {
+    message("No progeny columns were defined, return original data frame")
+    return(data)
+  }
+
+  progeny_idx <- match(progeny_cols_, names(data))
+  if (anyNA(progeny_idx)) {
+    missing_cols <- paste(progeny_cols_[is.na(progeny_idx)], collapse = ",")
+    stop("Unknown column names: ", missing_cols, call. = FALSE)
+  }
+
+  if (any(unlist(lapply(data[progeny_idx], class)) != "character")) {
+    stop("Progeny columns are not all character class")
+  }
+
+
+}
+
+convertScore <- function() {
+  if(class(data[[maternal_]]) != "character" | class(data[[paternal_]]) != "character") stop("maternal of paternal score is not character class")
+  if(any(data[[maternal_]]) != 1) stop("maternal score is not of length == 1")
   if(length(paternal) != 1) stop("paternal score is not of length == 1")
   #Check both parent scores are homozygous
   if(any(isHet(c(maternal, paternal)))) stop("Parental scores are not homozygous")
@@ -85,9 +136,9 @@ convertScore <- function(maternal, paternal, progeny, markerName = "unknown", mi
   paternal.prop <- sum(progeny == paternal)/progeny.total
   het.prop <- sum(progeny %in% c(hetmp, hetpm))/progeny.total
   minor.allele <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
-                         ifelse(maternal.prop < paternal.prop, "AA", 
+                         ifelse(maternal.prop < paternal.prop, "AA",
                                 ifelse(maternal.prop == paternal.prop, "equal", "BB")), NA)
-  minor.allele.freq <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))), 
+  minor.allele.freq <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
                               c(maternal.prop, paternal.prop)[which.min(c(maternal.prop, paternal.prop))], NA)
   missing <- sum(progeny == missingString)/length(progeny)
   other <- sum(is.na(progeny.out))/length(progeny.out)
@@ -95,7 +146,7 @@ convertScore <- function(maternal, paternal, progeny, markerName = "unknown", mi
   maternal.out <- stats::setNames("AA", names(maternal))
   paternal.out <- stats::setNames("BB", names(paternal))
   names(progeny.out) <- names(progeny)
-  
+
 
   return(data.frame(markerName = markerName, AA = maternal.prop,
            AB = het.prop,
