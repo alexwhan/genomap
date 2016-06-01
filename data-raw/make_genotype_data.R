@@ -15,5 +15,4 @@ genotype_rel_df <- data_frame(markerName = paste0("M", 1:3),
                               prog3 = c("BB", "BB", "AA"),
                               prog4 = c("AB", "AA", "AB"))
 
-write_csv(genotype_raw_df, "data-raw/genotype_raw_df.csv")
-write_csv(genotype_rel_df, "data-raw/genotype_rel_df.csv")
+devtools::use_data(genotype_raw_df, genotype_rel_df)
