@@ -127,9 +127,9 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
     dplyr::mutate(converted = purrr::map(
       paternal
     ))
-    mutate(new = map(parent1, genomap:::convertScore, paternal = parent2, progeny = c(prog1, prog2))) %>%
-    select(markerName, new) %>%
-    unnest()
+    dplyr::mutate(new = purrr::map(parent1, genomap:::convertScore, paternal = parent2, progeny = c(prog1, prog2))) %>%
+    dplyr::select(markerName, new) %>%
+    tidyr::unnest()
 
 }
 
