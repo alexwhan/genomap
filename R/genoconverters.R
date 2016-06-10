@@ -63,13 +63,13 @@ convert_rel <- function(data, markerName, maternal, paternal, ..., missingString
   markerName_ <- col_name(substitute(markerName))
   maternal_ <- col_name(substitute(maternal))
   paternal_ <- col_name(substitute(paternal))
-
+  
   if (n_dots(...) == 0) {
     progeny_cols_ <- setdiff(colnames(data), c(markerName_, maternal_, paternal_))
   } else {
     progeny_cols_ <- unname(dplyr::select_vars(colnames(data), ...))
   }
-
+  
   convert_rel_(data, markerName_, maternal_, paternal_, progeny_cols_, missingString)
 }
 
@@ -95,17 +95,17 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
     warning("No progeny columns were defined, return original data frame")
     return(data)
   }
-
+  
   progeny_idx <- match(progeny_cols_, names(data))
   if (anyNA(progeny_idx)) {
     missing_cols <- paste(progeny_cols_[is.na(progeny_idx)], collapse = ",")
     stop("Unknown column names: ", missing_cols, call. = FALSE)
   }
-
+  
   if (any(unlist(lapply(data[progeny_idx], class)) != "character")) {
     stop("Progeny columns are not all character class")
   }
-
+  
   maternal_idx <- match(maternal_, names(data))
   if (!inherits(data[[maternal_]], "character")) {
     stop("The maternal column is not of class character")
@@ -113,7 +113,7 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
   if (any(nchar(unlist(data[data[[maternal_]] != missingString, maternal_idx])) != 2)) {
     stop("There are non-missing maternal scores that have more or less than two characters")
   }
-
+  
   paternal_idx <- match(paternal_, names(data))
   if (!inherits(data[[paternal_]], "character")) {
     stop("The paternal column is not of class character")
@@ -121,16 +121,16 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
   if (any(nchar(unlist(data[data[[paternal_]] != missingString, paternal_idx])) != 2)) {
     stop("There are non-missing paternal scores that have more or less than two characters")
   }
-
+  
   out_data <- data %>%
     dplyr::rowwise() %>%
     dplyr::mutate(converted = purrr::map(
       paternal
     ))
-    dplyr::mutate(new = purrr::map(parent1, genomap:::convertScore, paternal = parent2, progeny = c(prog1, prog2))) %>%
+  dplyr::mutate(new = purrr::map(parent1, genomap:::convertScore, paternal = parent2, progeny = c(prog1, prog2))) %>%
     dplyr::select(markerName, new) %>%
     tidyr::unnest()
-
+  
 }
 
 #' Converts a single marker
@@ -138,31 +138,43 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
 #' @param maternal,paternal A two character string, or missingString value
 #' @param progeny A character vector of progeny scores
 #' @param missingString A string defining missing scores
+#' @return 
 #' @export
 convertScore <- function(maternal, paternal, progeny, missingString = "--") {
-
+  
   progeny.out <- vector(mode = "character", length = length(progeny))
-
-  if(length(paternal) != 1)
-  #Check both parent scores are homozygous
-  if(any(isHet(c(maternal, paternal)))) progeny.out[1:length(progeny)] <- NA
-  #check both parent scores are informative
-  if(any(grepl(missingString, c(maternal, paternal)))) progeny.out[1:length(progeny)] <- NA
-  #Check if any maternal equal paternal
-  if(any(maternal == paternal)) progeny.out[1:length(progeny)] <- NA
-
+  missing <- sum(progeny == missingString)/length(progeny)
+  #if(length(paternal) != 1)
+    #Check both parent scores are homozygous
+    if(any(isHet(c(maternal, paternal))) |
+       any(grepl(missingString, c(maternal, paternal))) |
+       maternal == paternal) {
+      progeny.out[1:length(progeny)] <- NA
+      other <- sum(!progeny %in% c(maternal, paternal, missingString))/length(progeny)
+      return(data.frame(AA = NA,
+                        AB = NA,
+                        BB = NA,
+                        class = "non-informative",
+                        missing = missing,
+                        other = other,
+                        minor_allele = NA,
+                        minor_allele_freq = NA) %>%
+               cbind.data.frame(t(progeny.out)) %>%
+               dplyr::tbl_df())
+    }
+  
   #Create possible het codes from paternal
   #This is to avoid a progeny call that doesn't match parentals being called AB
   hetmp <- paste0(sub("^([[:alnum:]]).", "\\1", maternal), sub("^([[:alnum:]]).", "\\1", paternal))
   hetpm <- paste0(sub("^([[:alnum:]]).", "\\1", paternal), sub("^([[:alnum:]]).", "\\1", maternal))
-
+  
   progeny.out[progeny == maternal] <- "AA"
   progeny.out[progeny == paternal] <- "BB"
   progeny.out[progeny == missingString] <- missingString
   progeny.out[progeny %in% c(hetmp, hetpm)] <- "AB"
   other <- sum(progeny.out == "")/length(progeny.out)
   progeny.out[progeny.out == ""] <- NA
-
+  
   progeny.total <- sum(progeny %in% c(maternal, paternal, hetmp, hetpm))
   maternal.prop <- sum(progeny == maternal)/progeny.total
   paternal.prop <- sum(progeny == paternal)/progeny.total
@@ -172,22 +184,23 @@ convertScore <- function(maternal, paternal, progeny, missingString = "--") {
                                 ifelse(maternal.prop == paternal.prop, "equal", "BB")), NA)
   minor.allele.freq <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
                               c(maternal.prop, paternal.prop)[which.min(c(maternal.prop, paternal.prop))], NA)
-  missing <- sum(progeny == missingString)/length(progeny)
-
+  
+  
   maternal.out <- stats::setNames("AA", names(maternal))
   paternal.out <- stats::setNames("BB", names(paternal))
   names(progeny.out) <- names(progeny)
-
-
+  
+  
   return(data.frame(AA = maternal.prop,
-           AB = het.prop,
-           BB = paternal.prop,
-           missing = missing,
-           other = other,
-           minor_allele = minor.allele,
-           minor_allele_freq = minor.allele.freq) %>%
+                    AB = het.prop,
+                    BB = paternal.prop,
+                    class = "informative",
+                    missing = missing,
+                    other = other,
+                    minor_allele = minor.allele,
+                    minor_allele_freq = minor.allele.freq) %>%
            cbind.data.frame(t(progeny.out)) %>%
-           dplyr::tbl_df)
+           dplyr::tbl_df())
 }
 
 
@@ -243,18 +256,18 @@ revmaplgs <- function(maps.comp_df, refmapid, revmapid, revmap) {
   map2dist_ <- paste0(deparse(substitute(revmapid)), "_mapdist")
   refmaplg_ <- paste0(deparse(substitute(refmapid)), "_lg")
   map2lg_ <- paste0(deparse(substitute(revmapid)), "_lg")
-
+  
   dist2_var <- "dist2"
-
+  
   revs <- maps.comp_df %>%
     dplyr::group_by_(map2lg_) %>%
     dplyr::arrange_(refmapdist_) %>%
     dplyr::mutate_(dist2 = map2dist_) %>%
     dplyr::summarise(rev = ifelse(stats::cor(1:dplyr::n(),
-                                      lazyeval::interp(~var, var = as.name(dist2_var))) < 0,
-                                      TRUE, FALSE)) %>%
+                                             lazyeval::interp(~var, var = as.name(dist2_var))) < 0,
+                                  TRUE, FALSE)) %>%
     dplyr::filter(rev)
-
+  
   outmap <- revmap(revmap, revs[[1]])
   return(outmap)
 }
@@ -318,10 +331,10 @@ join2maps <- function(map1, map2, map1markerName, map2markerName, map1distName, 
   map2lgName_ <- deparse(substitute(map2lgName))
   map1.r <- map1 %>%
     dplyr::rename_(.dots = with(map1, stats::setNames(c(map1markerName_, map1distName_, map1lgName_),
-                                        c("markerName", paste(map1name, c("mapdist", "lg"), sep = "_")))))
+                                                      c("markerName", paste(map1name, c("mapdist", "lg"), sep = "_")))))
   map2.r <- map2 %>%
     dplyr::rename_(.dots = with(map2, stats::setNames(c(map2markerName_, map2distName_, map2lgName_),
-                                        c("markerName", paste(map2name, c("mapdist", "lg"), sep = "_")))))
+                                                      c("markerName", paste(map2name, c("mapdist", "lg"), sep = "_")))))
   out <- map1.r %>%
     dplyr::left_join(map2.r)
   return(out)
@@ -345,28 +358,28 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
   df$markerName.lg <- paste0(df[[markerName_]], "_", df[[reflg_join_]])
   lgs.g <- df %>%
     dplyr::select_(names(df)[grepl("_lg", names(df))], "markerName.lg")
-
+  
   names(lgs.g) <- gsub("_.*", "", names(lgs.g))
-
+  
   lgs.g <- lgs.g %>%
     tidyr::gather_("source", "lg", names(lgs.g)[!grepl("markerName.lg", names(lgs.g))])
-
+  
   dist.g <- df %>%
     dplyr::select_(names(df)[grepl("_mapdist", names(df))], "markerName.lg")
   names(dist.g) <- gsub("_.*", "", names(dist.g))
   dist.g <- dist.g %>%
     tidyr::gather_("source", "mapdist",
                    names(dist.g)[!grepl("markerName.lg", names(dist.g))])
-
+  
   lgs.c <- lgs.g %>%
     dplyr::inner_join(dist.g)
-
+  
   reflg_facet_ <- deparse(substitute(reflg_facet))
   out.df <- df %>%
     dplyr::select_(reflg_facet_, "markerName.lg") %>%
     dplyr::left_join(lgs.c)
   out.df <- out.df[!is.na(out.df$lg),]
-
+  
 }
 
 #' Take a linkage group from a cross object, convert into long form and sort
@@ -416,9 +429,9 @@ make_nptest_classes <- function(vec, level = 1, na_string = "u") {
   if(length(levels(vec_fac)) < 2) {
     return(rep(NA_character_, length(vec)))
   }
-
+  
   stopifnot(length(levels(vec_fac)) >= 2)
-
+  
   if(level == 1) {
     main_level <- levels(vec_fac)[1]
     gen_levels <- c(main_level, paste0("not_", main_level))
@@ -426,14 +439,14 @@ make_nptest_classes <- function(vec, level = 1, na_string = "u") {
       out_vec <- as.numeric(vec_fac)
       out_vec[out_vec > 1] <- 2
     }
-
+    
     if(!any(genomap::isHet(vec))) {
       out_vec <- as.numeric(vec_fac)
     }
   }
-
+  
   if(level == 2) {
-
+    
     if(any(genomap::isHet(vec))) {
       if(length(levels(vec_fac)) < 3) {
         return(rep(NA_character_, length(vec)))
@@ -445,7 +458,7 @@ make_nptest_classes <- function(vec, level = 1, na_string = "u") {
         out_vec[out_vec == 3] <- 1
       }
     }
-
+    
     if(!any(genomap::isHet(vec))) {
       main_level <- levels(vec_fac)[2]
       gen_levels <- c(main_level, paste0("not_", main_level))
