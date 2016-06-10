@@ -165,74 +165,76 @@ check_parents_ <- function(data, maternal, paternal, missingString = "--") {
   return(data_out)
 }
 
-#' Converts a single marker
+#' Converts a single marker, typically a row in a data.frame.
 #'
-#' @param maternal,paternal A two character string, or missingString value
-#' @param progeny A character vector of progeny scores
-#' @param missingString A string defining missing scores
-#' @return
-#' @export
+#' @param maternal,paternal A two character string, or missingString value.
+#' @param progeny A (named) character vector of progeny scores.
+#' @param missingString A string defining missing scores.
+#'
 convertScore <- function(maternal, paternal, progeny, missingString = "--") {
-
-  progeny.out <- vector(mode = "character", length = length(progeny))
+  
+  if(is.null(names(progeny))) names(progeny) <- paste0("progeny", 1:length(progeny))
+  progeny.out <- vector(mode = "character", length = length(progeny)) %>% 
+    setNames(names(progeny))
+  
   missing <- sum(progeny == missingString)/length(progeny)
-  #if(length(paternal) != 1)
-    #Check both parent scores are homozygous
-    if(any(isHet(c(maternal, paternal))) |
-       any(grepl(missingString, c(maternal, paternal))) |
-       maternal == paternal) {
-      progeny.out[1:length(progeny)] <- NA
-      other <- sum(!progeny %in% c(maternal, paternal, missingString))/length(progeny)
-      return(data.frame(AA = NA,
-                        AB = NA,
-                        BB = NA,
-                        class = "non-informative",
-                        missing = missing,
-                        other = other,
-                        minor_allele = NA,
-                        minor_allele_freq = NA) %>%
-               cbind.data.frame(t(progeny.out)) %>%
-               dplyr::tbl_df())
-    }
-
-  #Create possible het codes from paternal
-  #This is to avoid a progeny call that doesn't match parentals being called AB
-  hetmp <- paste0(sub("^([[:alnum:]]).", "\\1", maternal), sub("^([[:alnum:]]).", "\\1", paternal))
-  hetpm <- paste0(sub("^([[:alnum:]]).", "\\1", paternal), sub("^([[:alnum:]]).", "\\1", maternal))
-
-  progeny.out[progeny == maternal] <- "AA"
-  progeny.out[progeny == paternal] <- "BB"
-  progeny.out[progeny == missingString] <- missingString
-  progeny.out[progeny %in% c(hetmp, hetpm)] <- "AB"
-  other <- sum(progeny.out == "")/length(progeny.out)
-  progeny.out[progeny.out == ""] <- NA
-
-  progeny.total <- sum(progeny %in% c(maternal, paternal, hetmp, hetpm))
-  maternal.prop <- sum(progeny == maternal)/progeny.total
-  paternal.prop <- sum(progeny == paternal)/progeny.total
-  het.prop <- sum(progeny %in% c(hetmp, hetpm))/progeny.total
-  minor.allele <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
-                         ifelse(maternal.prop < paternal.prop, "AA",
-                                ifelse(maternal.prop == paternal.prop, "equal", "BB")), NA)
-  minor.allele.freq <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
-                              c(maternal.prop, paternal.prop)[which.min(c(maternal.prop, paternal.prop))], NA)
-
-
-  maternal.out <- stats::setNames("AA", names(maternal))
-  paternal.out <- stats::setNames("BB", names(paternal))
-  names(progeny.out) <- names(progeny)
-
-
-  return(data.frame(AA = maternal.prop,
-                    AB = het.prop,
-                    BB = paternal.prop,
-                    class = "informative",
-                    missing = missing,
-                    other = other,
-                    minor_allele = minor.allele,
-                    minor_allele_freq = minor.allele.freq) %>%
-           cbind.data.frame(t(progeny.out)) %>%
-           dplyr::tbl_df())
+  
+  if(any(isHet(c(maternal, paternal))) |
+     any(grepl(missingString, c(maternal, paternal))) |
+     maternal == paternal) {
+    progeny.out[1:length(progeny)] <- NA
+    other <- sum(!progeny %in% c(maternal, paternal, missingString))/length(progeny)
+    return(data.frame(AA = NA,
+                      AB = NA,
+                      BB = NA,
+                      class = "non-informative",
+                      missing = missing,
+                      other = other,
+                      minor_allele = NA,
+                      minor_allele_freq = NA) %>%
+             cbind.data.frame(t(progeny.out)) %>%
+             dplyr::tbl_df())
+  } else {
+    
+    #Create possible het codes from paternal
+    #This is to avoid a progeny call that doesn't match parentals being called AB
+    hetmp <- paste0(sub("^([[:alnum:]]).", "\\1", maternal), sub("^([[:alnum:]]).", "\\1", paternal))
+    hetpm <- paste0(sub("^([[:alnum:]]).", "\\1", paternal), sub("^([[:alnum:]]).", "\\1", maternal))
+    
+    progeny.out[progeny == maternal] <- "AA"
+    progeny.out[progeny == paternal] <- "BB"
+    progeny.out[progeny == missingString] <- missingString
+    progeny.out[progeny %in% c(hetmp, hetpm)] <- "AB"
+    other <- sum(progeny.out == "")/length(progeny.out)
+    progeny.out[progeny.out == ""] <- NA
+    
+    progeny.total <- sum(progeny %in% c(maternal, paternal, hetmp, hetpm))
+    maternal.prop <- sum(progeny == maternal)/progeny.total
+    paternal.prop <- sum(progeny == paternal)/progeny.total
+    het.prop <- sum(progeny %in% c(hetmp, hetpm))/progeny.total
+    minor.allele <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
+                           ifelse(maternal.prop < paternal.prop, "AA",
+                                  ifelse(maternal.prop == paternal.prop, "equal", "BB")), NA)
+    minor.allele.freq <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
+                                c(maternal.prop, paternal.prop)[which.min(c(maternal.prop, paternal.prop))], NA)
+    
+    
+    maternal.out <- stats::setNames("AA", names(maternal))
+    paternal.out <- stats::setNames("BB", names(paternal))
+    names(progeny.out) <- names(progeny)
+    
+    
+    return(data.frame(AA = maternal.prop,
+                      AB = het.prop,
+                      BB = paternal.prop,
+                      class = "informative",
+                      missing = missing,
+                      other = other,
+                      minor_allele = minor.allele,
+                      minor_allele_freq = minor.allele.freq) %>%
+             cbind.data.frame(t(progeny.out)) %>%
+             dplyr::tbl_df())
+  }
 }
 
 
