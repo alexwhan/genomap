@@ -17,7 +17,7 @@ genotype_rel_df <- data_frame(markerName = paste0("M", 1:3),
                               prog3 = c("BB", "BB", "AA"),
                               prog4 = c("AB", "AA", "AB"))
 
-saveRDS(genotype_rel_df, file = "tests/test_data/genotype_raw_df.rds")
+saveRDS(genotype_rel_df, file = "tests/test_data/genotype_rel_df.rds")
 
 genotype_parent_status_df <- genotype_raw_df %>%
   mutate(parent_status = c("informative", "informative", "informative",
