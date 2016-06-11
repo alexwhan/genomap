@@ -122,17 +122,16 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
     stop("There are non-missing paternal scores that have more or less than two characters")
   }
   
-  mutate_call <- lazyeval::interp(
-    ~ purrr::map(as.name(maternal_), convertScore, 
-                 paternal = as.name(paternal_), 
-                 progeny = as.name(progeny_cols_)))
+  data$converted <- apply(data, 1, function(x) {
+    converted <- convertScore(x[maternal_idx], x[paternal_idx], x[progeny_idx], missingString = missingString)
+    return(data.frame(t(converted)))
+  })
   
-  out_data <- data %>%
-    dplyr::rowwise() %>%
-  dplyr::mutate_(.dots =  setNames(list(mutate_call), "converted")) %>%
-    dplyr::select_(markerName_, "converted") %>%
+  data_out <- data %>% 
+    dplyr::select_(markerName_, "converted") %>% 
     tidyr::unnest()
-
+  
+  return(data_out)
 }
 
 #' Checks informativeness of parents
@@ -174,28 +173,13 @@ check_parents_ <- function(data, maternal, paternal, missingString = "--") {
 #' @param missingString A string defining missing scores.
 #'
 convertScore <- function(maternal, paternal, progeny, missingString = "--") {
-  
   if(is.null(names(progeny))) names(progeny) <- paste0("progeny", 1:length(progeny))
   progeny.out <- vector(mode = "character", length = length(progeny)) %>% 
     setNames(names(progeny))
-  
-  missing <- sum(progeny == missingString)/length(progeny)
-  
   if(any(isHet(c(maternal, paternal))) |
      any(grepl(missingString, c(maternal, paternal))) |
      maternal == paternal) {
     progeny.out[1:length(progeny)] <- NA
-    other <- sum(!progeny %in% c(maternal, paternal, missingString))/length(progeny)
-    return(data.frame(AA = NA,
-                      AB = NA,
-                      BB = NA,
-                      class = "non-informative",
-                      missing = missing,
-                      other = other,
-                      minor_allele = NA,
-                      minor_allele_freq = NA) %>%
-             cbind.data.frame(t(progeny.out)) %>%
-             dplyr::tbl_df())
   } else {
     
     #Create possible het codes from paternal
@@ -207,37 +191,11 @@ convertScore <- function(maternal, paternal, progeny, missingString = "--") {
     progeny.out[progeny == paternal] <- "BB"
     progeny.out[progeny == missingString] <- missingString
     progeny.out[progeny %in% c(hetmp, hetpm)] <- "AB"
-    other <- sum(progeny.out == "")/length(progeny.out)
     progeny.out[progeny.out == ""] <- NA
-    
-    progeny.total <- sum(progeny %in% c(maternal, paternal, hetmp, hetpm))
-    maternal.prop <- sum(progeny == maternal)/progeny.total
-    paternal.prop <- sum(progeny == paternal)/progeny.total
-    het.prop <- sum(progeny %in% c(hetmp, hetpm))/progeny.total
-    minor.allele <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
-                           ifelse(maternal.prop < paternal.prop, "AA",
-                                  ifelse(maternal.prop == paternal.prop, "equal", "BB")), NA)
-    minor.allele.freq <- ifelse(all(!is.na(c(maternal.prop, paternal.prop))),
-                                c(maternal.prop, paternal.prop)[which.min(c(maternal.prop, paternal.prop))], NA)
-    
-    
-    maternal.out <- stats::setNames("AA", names(maternal))
-    paternal.out <- stats::setNames("BB", names(paternal))
-    names(progeny.out) <- names(progeny)
-    
-    
-    return(data.frame(AA = maternal.prop,
-                      AB = het.prop,
-                      BB = paternal.prop,
-                      class = "informative",
-                      missing = missing,
-                      other = other,
-                      minor_allele = minor.allele,
-                      minor_allele_freq = minor.allele.freq) %>%
-             cbind.data.frame(t(progeny.out)) %>%
-             dplyr::tbl_df())
   }
+  return(progeny.out)
 }
+
 
 
 #' Convert R/qtl map into data.frame
