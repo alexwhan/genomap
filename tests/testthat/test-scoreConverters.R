@@ -29,10 +29,7 @@ test_that("convert_rel converts correctly", {
 test_that("convertScore works manually", {
   expect_equal_to_reference({
     manual_convert <- genotype_raw_df %>%
-      dplyr::rowwise() %>%
-      dplyr::mutate(new = purrr::map(parent1, genomap:::convertScore, paternal = parent2, progeny = c(prog1, prog2))) %>%
-      dplyr::select(markerName, new) %>%
-      tidyr::unnest()
+      convert_rel(markerName, parent1, parent2, contains("prog"))
   }, "../test_data/genotype_rel_df.rds")
 })
 
