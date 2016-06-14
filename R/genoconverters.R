@@ -182,8 +182,10 @@ allele_stats_ <- function(data, converted_) {
     }
     data_out <- data.frame(AA = AA, AB = AB, BB = BB,
                            minor_allele = minor_allele,
-                           minor_allele_freq = minor_allele_freq)
-  })
+                           minor_allele_freq = minor_allele_freq,
+                           missing = missing)
+  }) %>%
+    suppressWarnings()
 
   return(data)
 
