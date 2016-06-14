@@ -137,7 +137,7 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
 #' Gets allele stats
 #'
 #' @param data A data.frame.
-#' @param converted Specify the list column containing the converted allele calls (outptu from convert_rel)
+#' @param converted Specify the list column containing the converted allele calls (output from convert_rel)
 #' @export
 allele_stats <- function(data, converted) {
   if(!inherits(data, "data.frame")) stop("data needs to be a data.frame")
@@ -151,6 +151,7 @@ allele_stats <- function(data, converted) {
 
 #' Gets allele stats
 #'
+#' @param converted_ String defining the list column containing the converted allele calls (output from convert_rel)
 #' @inheritParams allele_stats
 #' @importFrom magrittr %>%
 #' @export

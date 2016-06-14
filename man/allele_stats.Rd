@@ -9,7 +9,7 @@ allele_stats(data, converted)
 \arguments{
 \item{data}{A data.frame.}
 
-\item{converted}{Specify the list column containing the converted allele calls (outptu from convert_rel)}
+\item{converted}{Specify the list column containing the converted allele calls (output from convert_rel)}
 }
 \description{
 Gets allele stats

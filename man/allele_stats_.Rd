@@ -8,6 +8,8 @@ allele_stats_(data, converted_)
 }
 \arguments{
 \item{data}{A data.frame.}
+
+\item{converted_}{String defining the list column containing the converted allele calls (output from convert_rel)}
 }
 \description{
 Gets allele stats
