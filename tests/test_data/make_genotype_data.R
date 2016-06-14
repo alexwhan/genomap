@@ -7,7 +7,7 @@ genotype_raw_df <- data_frame(markerName = paste0("M", 1:6),
                               prog1 = c("AA", "TT", "AA", "CC", "AA", "TC"),
                               prog2 = c("AA", "CC", "AA", "CC", "AG", "TC"),
                               prog3 = c("GG", "CC", "GG", "CC", "AG", "TC"),
-                           prog4 = c("AG", "TT", "AG", "CC", "AG", "TC"))
+                              prog4 = c("AG", "TT", "AG", "CC", "AG", "TC"))
 
 saveRDS(genotype_raw_df, file = "tests/test_data/genotype_raw_df.rds")
 
