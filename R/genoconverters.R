@@ -121,54 +121,74 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
   if (any(nchar(unlist(data[data[[paternal_]] != missingString, paternal_idx])) != 2)) {
     stop("There are non-missing paternal scores that have more or less than two characters")
   }
-  
+
   data$converted <- apply(data, 1, function(x) {
     converted <- convertScore(x[maternal_idx], x[paternal_idx], x[progeny_idx], missingString = missingString)
     return(data.frame(t(converted)))
   })
-  
-  # data_out <- data %>% 
-  #   dplyr::select_(markerName_, "converted") %>% 
+
+  # data_out <- data %>%
+  #   dplyr::select_(markerName_, "converted") %>%
   #   tidyr::unnest()
-  
+
   return(data)
 }
 
 #' Gets allele stats
-#' 
+#'
 #' @param data A data.frame.
 #' @param converted Specify the list column containing the converted allele calls (outptu from convert_rel)
 #' @export
 allele_stats <- function(data, converted) {
   if(!inherits(data, "data.frame")) stop("data needs to be a data.frame")
-  
+
   converted_ <- col_name(substitute(converted))
-  
+
   if(!inherits(data[[converted_]], "list")) stop("The converted column should be a list")
-  
+
   allele_stats_(data, converted_)
 }
 
 #' Gets allele stats
-#' 
+#'
 #' @inheritParams allele_stats
 #' @importFrom magrittr %>%
 #' @export
 allele_stats_ <- function(data, converted_) {
   if(!inherits(data, "data.frame")) stop("data needs to be a data.frame")
-  
+
   if(!inherits(data[[converted_]], "list")) stop("The converted column should be a list")
-  
-  converted_df <- data %>% 
-    dplyr::select_(converted_) %>% 
+
+  converted_df <- data %>%
+    dplyr::select_(converted_) %>%
     tidyr::unnest()
-  
-  data_out <- converted_df %>% 
-    rowwise() %>% 
-    mutate()
-    
+
+  data$allele_stats <- apply(converted_df, 1, function(x) {
+    scores <- sum(!is.na(x))
+    missing <- (length(x) - scores)/length(x)
+    if(scores == 0) {
+      AA <- AB <- BB <- minor_allele <- minor_allele_freq <- NA
+    } else {
+      AA <- sum(x == "AA")/scores
+      AB <- sum(x == "AB")/scores
+      BB <- sum(x == "BB")/scores
+      if(AA == BB) {
+        minor_allele <- "equal"
+        minor_allele_freq <- AA
+      } else {
+        minor_allele <- c("AA", "BB")[which.min(c(AA, BB))]
+        minor_allele_freq <- c(AA, BB)[which.min(c(AA, BB))]
+      }
+    }
+    data_out <- data.frame(AA = AA, AB = AB, BB = BB,
+                           minor_allele = minor_allele,
+                           minor_allele_freq = minor_allele_freq)
+  })
+
+  return(data)
+
 }
- 
+
 #' Checks informativeness of parents
 #'
 #' @param data A data.frame where each row is a marker score
@@ -195,7 +215,7 @@ check_parents_ <- function(data, maternal, paternal, missingString = "--") {
   data_out <- data %>%
     # dplyr::select_(maternal, paternal) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate_(.dots = setNames(list(mutate_call), "parent_status")) %>%
+    dplyr::mutate_(.dots = stats::setNames(list(mutate_call), "parent_status")) %>%
     dplyr::select_(maternal, paternal, "parent_status", .dots = other_cols)
 
   return(data_out)
@@ -209,19 +229,19 @@ check_parents_ <- function(data, maternal, paternal, missingString = "--") {
 #'
 convertScore <- function(maternal, paternal, progeny, missingString = "--") {
   if(is.null(names(progeny))) names(progeny) <- paste0("progeny", 1:length(progeny))
-  progeny.out <- vector(mode = "character", length = length(progeny)) %>% 
-    setNames(names(progeny))
+  progeny.out <- vector(mode = "character", length = length(progeny)) %>%
+    stats::setNames(names(progeny))
   if(any(isHet(c(maternal, paternal))) |
      any(grepl(missingString, c(maternal, paternal))) |
      maternal == paternal) {
     progeny.out[1:length(progeny)] <- NA
   } else {
-    
+
     #Create possible het codes from paternal
     #This is to avoid a progeny call that doesn't match parentals being called AB
     hetmp <- paste0(sub("^([[:alnum:]]).", "\\1", maternal), sub("^([[:alnum:]]).", "\\1", paternal))
     hetpm <- paste0(sub("^([[:alnum:]]).", "\\1", paternal), sub("^([[:alnum:]]).", "\\1", maternal))
-    
+
     progeny.out[progeny == maternal] <- "AA"
     progeny.out[progeny == paternal] <- "BB"
     progeny.out[progeny == missingString] <- missingString
