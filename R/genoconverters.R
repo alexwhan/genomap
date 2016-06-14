@@ -134,6 +134,41 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
   return(data)
 }
 
+#' Gets allele stats
+#' 
+#' @param data A data.frame.
+#' @param converted Specify the list column containing the converted allele calls (outptu from convert_rel)
+#' @export
+allele_stats <- function(data, converted) {
+  if(!inherits(data, "data.frame")) stop("data needs to be a data.frame")
+  
+  converted_ <- col_name(substitute(converted))
+  
+  if(!inherits(data[[converted_]], "list")) stop("The converted column should be a list")
+  
+  allele_stats_(data, converted_)
+}
+
+#' Gets allele stats
+#' 
+#' @inheritParams allele_stats
+#' @importFrom magrittr %>%
+#' @export
+allele_stats_ <- function(data, converted_) {
+  if(!inherits(data, "data.frame")) stop("data needs to be a data.frame")
+  
+  if(!inherits(data[[converted_]], "list")) stop("The converted column should be a list")
+  
+  converted_df <- data %>% 
+    dplyr::select_(converted_) %>% 
+    tidyr::unnest()
+  
+  data_out <- converted_df %>% 
+    rowwise() %>% 
+    mutate()
+    
+}
+ 
 #' Checks informativeness of parents
 #'
 #' @param data A data.frame where each row is a marker score
