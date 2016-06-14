@@ -127,11 +127,11 @@ convert_rel_.data.frame <- function(data, markerName_, maternal_, paternal_, pro
     return(data.frame(t(converted)))
   })
   
-  data_out <- data %>% 
-    dplyr::select_(markerName_, "converted") %>% 
-    tidyr::unnest()
+  # data_out <- data %>% 
+  #   dplyr::select_(markerName_, "converted") %>% 
+  #   tidyr::unnest()
   
-  return(data_out)
+  return(data)
 }
 
 #' Checks informativeness of parents
