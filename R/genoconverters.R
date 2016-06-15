@@ -311,14 +311,18 @@ revmaplgs <- function(maps.comp_df, refmapid, revmapid, revmap) {
 
   dist2_var <- "dist2"
 
+  dots_idx <- list(lazyeval::interp(~order(var), var = as.name(refmapdist_)))
+  dots_cor <- list(lazyeval::interp(~ cor(var1, var2),
+                                    var1 = as.name("index"),
+                                    var2 = as.name(map2dist_)))
+  dots_rev <- list(lazyeval::interp(~var < 0, var = as.name("rev")))
+
   revs <- maps.comp_df %>%
     dplyr::group_by_(map2lg_) %>%
     dplyr::arrange_(refmapdist_) %>%
-    dplyr::mutate_(dist2 = map2dist_) %>%
-    dplyr::summarise(rev = ifelse(stats::cor(1:dplyr::n(),
-                                             lazyeval::interp(~var, var = as.name(dist2_var))) < 0,
-                                  TRUE, FALSE)) %>%
-    dplyr::filter(rev)
+    dplyr::mutate_(.dots = stats::setNames(dots_idx, "index")) %>%
+    dplyr::summarise_(.dots = stats::setNames(dots_cor, "rev")) %>%
+    dplyr::filter_(.dots = dots_rev)
 
   outmap <- revmap(revmap, revs[[1]])
   return(outmap)
@@ -405,19 +409,21 @@ join2maps <- function(map1, map2, map1markerName, map2markerName, map1distName, 
 #' @export
 #' @importFrom magrittr %>%
 longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
+  reflg_facet_ <- deparse(substitute(reflg_facet))
   reflg_join_ <- deparse(substitute(reflg_join))
   markerName_ <- deparse(substitute(markerName))
   df$markerName.lg <- paste0(df[[markerName_]], "_", df[[reflg_join_]])
   lgs.g <- df %>%
-    dplyr::select_(names(df)[grepl("_lg", names(df))], "markerName.lg")
+    dplyr::select_(reflg_facet_, reflg_join_, "markerName.lg")
 
   names(lgs.g) <- gsub("_.*", "", names(lgs.g))
 
   lgs.g <- lgs.g %>%
     tidyr::gather_("source", "lg", names(lgs.g)[!grepl("markerName.lg", names(lgs.g))])
 
+  mapdist_id <- names(df)[grepl("_mapdist", names(df))]
   dist.g <- df %>%
-    dplyr::select_(names(df)[grepl("_mapdist", names(df))], "markerName.lg")
+    dplyr::select_(.dots = c(mapdist_id, "markerName.lg"))
   names(dist.g) <- gsub("_.*", "", names(dist.g))
   dist.g <- dist.g %>%
     tidyr::gather_("source", "mapdist",
@@ -431,8 +437,8 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
     dplyr::select_(reflg_facet_, "markerName.lg") %>%
     dplyr::left_join(lgs.c)
   out.df <- out.df[!is.na(out.df$lg),]
-
 }
+
 
 #' Take a linkage group from a cross object, convert into long form and sort
 #' according to genotype scores for a marker of interest.
