@@ -16,7 +16,7 @@ asmap_step <- function(obj, p.value = 1e-6) {
 #' Returns the maximum distance between markers for a
 #' linkage group.
 #'
-#' @obj A cross object suitable for mstmap().
+#' @param obj A cross object suitable for mstmap().
 get_lg_stats <- function(obj) {
   lg_stats <- lapply(obj$geno, function(x) {
     if(length(x$map) > 1){

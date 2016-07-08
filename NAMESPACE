@@ -3,6 +3,7 @@
 S3method(convert_rel_,data.frame)
 export(allele_stats)
 export(allele_stats_)
+export(asmap_prog)
 export(convert_rel)
 export(convert_rel_)
 export(geno2df)
