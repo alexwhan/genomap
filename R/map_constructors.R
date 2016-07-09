@@ -55,12 +55,11 @@ get_lg_stats <- function(obj) {
 asmap_prog <- function(obj, comp, p.values = 10^-(c(5:10)), redo_threshold = 20) {
   out <- vector(mode = "list", length = length(p.values + 1))
   out[[1]] <- obj
-  k <- 1
   i <- 1
   continue <- TRUE
   while(continue) {
     print(paste("i =", i, "p.value =", p.values[[i]], "/n"))
-    map_step <- out[[k]]
+    map_step <- out[[i]]
 
     #Get chr that need reassessment
     lg_stats <- get_lg_stats(map_step)
@@ -78,19 +77,21 @@ asmap_prog <- function(obj, comp, p.values = 10^-(c(5:10)), redo_threshold = 20)
       map_leave <- map_step
       map_leave$geno <- map_leave$geno[names(map_leave$geno) %in% lgs_leave]
 
-      map_redone <- asmap_step(map_redo, p.value = p.values[[i]])
+      map_redone_list <- lapply(map_redo_list, asmap_step, p.value = p.values[[i]])
 
-      if(names(map_redone)[1] == "geno") {
-        k <- i + 1
-        map_redone$geno <- c(map_redone$geno, map_leave$geno)
-        map_redone$geno <- map_redone$geno[order(names(map_redone$geno))]
-        out[[i + 1]] <- map_redone
-      }
-      if(i < length(p.values)){
-        i <- i + 1
-      } else {
-        continue <- FALSE
-      }
+      map_redone <- map_redone_list[[1]]
+      map_redone$geno <- unlist(lapply(map_redone_list, function(x) {
+        return(x$geno)
+      }), recursive = FALSE)
+
+      map_redone$geno <- c(map_redone$geno, map_leave$geno)
+      map_redone$geno <- map_redone$geno[order(names(map_redone$geno))]
+      out[[i + 1]] <- map_redone
+    }
+    if(i < length(p.values)){
+      i <- i + 1
+    } else {
+      continue <- FALSE
     }
   }
   return(out)
