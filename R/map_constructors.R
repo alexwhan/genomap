@@ -1,16 +1,30 @@
-#' A wrapper around ASMap::mstmap with some error handling,
-#' and associating the input p.value with the output.
+#' A wrapper around ASMap::mstmap with some error handling.
+#' Associates success or error and p.value with the output.
 #'
 #' @param obj A cross object suitable for mstmap().
 #' @param p.value A value between 0 and 1.
 asmap_step <- function(obj, p.value = 1e-6) {
-  obj <- tryCatch({
-    obj <- ASMap::mstmap(obj, p.value = p.value, bychr = TRUE)
+  obj_new <- tryCatch({
+    ASMap::mstmap(obj, p.value = p.value, bychr = TRUE)
   }, error = function(e){
     "error"
   })
-  obj$p.value <- p.value
-  return(obj)
+  if(length(obj_new) == 1) {
+    obj_out <- obj
+    obj_out$geno <- lapply(obj_out$geno, function(x) {
+      x$p.value <- p.value
+      x$outcome <- "error"
+      return(x)
+    })
+  } else {
+    obj_out <- obj_new
+    obj_out$geno <- lapply(obj_new$geno, function(x) {
+      x$p.value <- p.value
+      x$outcome <- "success"
+      return(x)
+    })
+  }
+  return(obj_out)
 }
 
 #' Returns the maximum distance between markers for a
@@ -56,8 +70,11 @@ asmap_prog <- function(obj, comp, p.values = 10^-(c(5:10)), redo_threshold = 20)
     } else {
       lgs_leave <- names(map_step$geno)[!names(map_step$geno) %in% lgs_redo]
 
-      map_redo <- map_step
-      map_redo$geno <- map_redo$geno[names(map_redo$geno) %in% lgs_redo]
+      map_redo_list <- vector(mode = "list", length = length(lgs_redo))
+      for(j in 1:length(lgs_redo)) {
+        map_redo_list[[j]] <- map_step
+        map_redo_list[[j]]$geno <- map_step$geno[names(map_step$geno) == lgs_redo[j]]
+      }
       map_leave <- map_step
       map_leave$geno <- map_leave$geno[names(map_leave$geno) %in% lgs_leave]
 
