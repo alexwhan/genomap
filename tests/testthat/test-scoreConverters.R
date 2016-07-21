@@ -28,8 +28,9 @@ test_that("convert_rel converts correctly", {
 
 test_that("convertScore works manually", {
   expect_equal_to_reference({
+    browser()
     manual_convert <- genotype_raw_df %>%
-      convert_rel(markerName, parent1, parent2, contains("prog")) %>%
+      convert_rel(markerName, parent1, parent2, dplyr::contains("prog")) %>%
       select(markerName, converted) %>%
       tidyr::unnest()
   }, "../test_data/genotype_rel_df.rds")
