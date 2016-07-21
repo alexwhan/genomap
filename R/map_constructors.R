@@ -53,7 +53,7 @@ get_lg_stats <- function(obj) {
 #' gap large than this threshold, it will be recalculated in the next cycle.
 #' @export
 asmap_prog <- function(obj, comp, p.values = 10^-(c(5:10)), redo_threshold = 20) {
-  out <- vector(mode = "list", length = length(p.values + 1))
+  out <- vector(mode = "list", length = length(p.values) + 1)
   out[[1]] <- obj
   i <- 1
   continue <- TRUE
@@ -62,8 +62,13 @@ asmap_prog <- function(obj, comp, p.values = 10^-(c(5:10)), redo_threshold = 20)
     map_step <- out[[i]]
 
     #Get chr that need reassessment
-    lg_stats <- get_lg_stats(map_step)
-    lgs_redo <- names(lg_stats)[lg_stats > redo_threshold]
+    if(i == 1) {
+      lgs_redo <- names(map_step$geno)
+    } else{
+      lg_stats <- genomap:::get_lg_stats(map_step)
+      lgs_redo <- names(lg_stats)[lg_stats > redo_threshold]
+    }
+
     if(length(lgs_redo) == 0) {
       continue <- FALSE
     } else {
@@ -75,7 +80,12 @@ asmap_prog <- function(obj, comp, p.values = 10^-(c(5:10)), redo_threshold = 20)
         map_redo_list[[j]]$geno <- map_step$geno[names(map_step$geno) == lgs_redo[j]]
       }
       map_leave <- map_step
-      map_leave$geno <- map_leave$geno[names(map_leave$geno) %in% lgs_leave]
+      if(length(lgs_leave) == 0) {
+        map_leave$geno <- NULL
+      } else {
+        map_leave$geno <- map_leave$geno[names(map_leave$geno) %in% lgs_leave]
+      }
+
 
       map_redone_list <- lapply(map_redo_list, asmap_step, p.value = p.values[[i]])
 
@@ -94,5 +104,6 @@ asmap_prog <- function(obj, comp, p.values = 10^-(c(5:10)), redo_threshold = 20)
       continue <- FALSE
     }
   }
+  out <- out[1:(i + 1)]
   return(out)
 }
