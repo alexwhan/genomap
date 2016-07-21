@@ -24,6 +24,7 @@ test_that("isHomo works", {
 
 test_that("convert_rel converts correctly", {
   expect_error(convert_rel(genotype_raw_df))
+  expect_error(convert_rel(genotype_raw_df, markerName, parent1, parent2, contains("prog"), missingString = "--"))
 })
 
 test_that("convertScore works manually", {
