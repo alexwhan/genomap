@@ -2,8 +2,8 @@
 % Please edit documentation in R/map_constructors.R
 \name{asmap_step}
 \alias{asmap_step}
-\title{A wrapper around ASMap::mstmap with some error handling,
-and associating the input p.value with the output.}
+\title{A wrapper around ASMap::mstmap with some error handling.
+Associates success or error and p.value with the output.}
 \usage{
 asmap_step(obj, p.value = 1e-06)
 }
@@ -13,7 +13,7 @@ asmap_step(obj, p.value = 1e-06)
 \item{p.value}{A value between 0 and 1.}
 }
 \description{
-A wrapper around ASMap::mstmap with some error handling,
-and associating the input p.value with the output.
+A wrapper around ASMap::mstmap with some error handling.
+Associates success or error and p.value with the output.
 }
 

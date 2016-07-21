@@ -48,6 +48,7 @@ get_lg_stats <- function(obj) {
 #' Intermediate results are kept to trace the point at which
 #' linkage groups break.
 #' @param obj A cross objects suitable for mstmap.
+#' @param comp A comparison object - currently unused
 #' @param p.values A decreasing vector of p.values between 0 and 1.
 #' @param redo_threshold Distance in cM. If a linkage group has a
 #' gap large than this threshold, it will be recalculated in the next cycle.
@@ -65,7 +66,7 @@ asmap_prog <- function(obj, comp, p.values = 10^-(c(5:10)), redo_threshold = 20)
     if(i == 1) {
       lgs_redo <- names(map_step$geno)
     } else{
-      lg_stats <- genomap:::get_lg_stats(map_step)
+      lg_stats <- get_lg_stats(map_step)
       lgs_redo <- names(lg_stats)[lg_stats > redo_threshold]
     }
 

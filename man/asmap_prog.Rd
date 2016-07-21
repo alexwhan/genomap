@@ -12,6 +12,8 @@ asmap_prog(obj, comp, p.values = 10^-(c(5:10)), redo_threshold = 20)
 \arguments{
 \item{obj}{A cross objects suitable for mstmap.}
 
+\item{comp}{A comparison object - currently unused}
+
 \item{p.values}{A decreasing vector of p.values between 0 and 1.}
 
 \item{redo_threshold}{Distance in cM. If a linkage group has a

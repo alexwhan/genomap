@@ -1,7 +1,7 @@
 Package: genomap
 Type: Package
 Title: A set of tools for working with raw genotype calls and genetic maps
-Version: 0.0.0.9000
+Version: 0.0.2
 Date: 2015-11-03
 Authors@R: c(
     person("Alex", "Whan", , "alexwhan@gmail.com", c("aut", "cre"))
@@ -23,5 +23,6 @@ License: GPL-2
 LazyData: TRUE
 Suggests:
     testthat,
-    covr
+    covr,
+    ASMap (> 0.4)
 RoxygenNote: 5.0.1
