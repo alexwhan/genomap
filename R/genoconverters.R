@@ -286,7 +286,7 @@ geno2df <- function(map) {
     out <- as.data.frame(x$data)
     markers <- colnames(out)
     out$id <- rownames(out)
-    out.g <- tidyr::gather_(out, "markerName", "score", colnames)
+    out.g <- tidyr::gather_(out, "markerName", "score", markers)
     return(out.g)
   })
   genodf <- dplyr::bind_rows(genodf, .id = "lg")
