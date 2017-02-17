@@ -260,15 +260,27 @@ convertScore <- function(maternal, paternal, progeny, missingString = "--") {
 #'
 #' Similar to pull.map, but returns a more useful object.
 #'
-#' @param map An R/qtl cross object
+#' @param map An R/qtl cross or map object
 #' @export
 #' @importFrom magrittr %>%
-map2df <- function(map) {
-  mapdf <- lapply(map$geno, function(x) {
-    out <- as.data.frame(x$map)
-    out$markerName <- rownames(out)
-    return(out)
-  })
+map2df <- function(obj) {
+  if(!any(class(obj) %in% c("cross", "map"))) stop("obj needs to be either map or cross")
+  if(class(obj) == cross) {
+    mapdf <- lapply(obj$geno, function(x) {
+      out <- as.data.frame(x$map)
+      out$markerName <- rownames(out)
+      return(out)
+    })
+  }
+  if(class(obj) == map) {
+    mapdf <- lapply(obj, function(x) {
+      class(x) <- "numeric"
+      out <- as.data.frame(x)
+      out$markerName <- rownames(out)
+      return(out)
+    })
+  }
+
   mapdf <- dplyr::bind_rows(mapdf, .id = "lg") %>%
     dplyr::rename_("mapdist" = quote(`x$map`))
   return(mapdf)
@@ -447,6 +459,7 @@ longmaps <- function(df, reflg_facet, reflg_join, markerName = markerName) {
 #'   cross$geno$name.
 #' @param markerOfInterest A string identifying the marker by which the data
 #'   should be sorted.
+#' @export
 #' @importFrom magrittr %>%
 genoComp <- function(lgObject, markerOfInterest) {
   df <- as.data.frame(lgObject$data)
