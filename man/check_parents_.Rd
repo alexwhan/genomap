@@ -16,4 +16,3 @@ check_parents_(data, maternal, paternal, missingString = "--")
 \description{
 Checks informativeness of parents
 }
-

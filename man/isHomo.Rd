@@ -20,4 +20,3 @@ or throw an error if scores do not match characterClass.}
 \description{
 Checks genotype scores for homozygosity
 }
-

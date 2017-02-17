@@ -14,4 +14,3 @@ revmap(map, revgroups)
 \description{
 Reverse particular linkage groups in a map from a cross object
 }
-

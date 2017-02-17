@@ -21,4 +21,3 @@ in maps.comp_df.}
 Take output from /code{join2maps()} and a map object to be reversed, and
 returns the map object with appropriate groups reversed.
 }
-

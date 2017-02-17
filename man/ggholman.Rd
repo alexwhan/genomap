@@ -28,4 +28,3 @@ data.frame of three columns and returns a triangle plot with a point for each
 row, and positioned between the vertices based on the trinomial distribution.
 After broman::triplot
 }
-

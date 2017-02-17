@@ -18,4 +18,3 @@ should be sorted.}
 Take a linkage group from a cross object, convert into long form and sort
 according to genotype scores for a marker of interest.
 }
-

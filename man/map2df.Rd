@@ -4,12 +4,11 @@
 \alias{map2df}
 \title{Convert R/qtl map into data.frame}
 \usage{
-map2df(map)
+map2df(obj)
 }
 \arguments{
-\item{map}{An R/qtl cross object}
+\item{map}{An R/qtl cross or map object}
 }
 \description{
 Similar to pull.map, but returns a more useful object.
 }
-
