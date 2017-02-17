@@ -286,6 +286,7 @@ map2df <- function(obj) {
   names(mapdf)[2] <- "mapdist"
 
   mapdf <- tibble::as_tibble(mapdf)
+  class(mapdf) <- c(class(mapdf), "tidy_gen_map")
 
   return(mapdf)
 }
