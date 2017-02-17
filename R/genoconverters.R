@@ -265,14 +265,14 @@ convertScore <- function(maternal, paternal, progeny, missingString = "--") {
 #' @importFrom magrittr %>%
 map2df <- function(obj) {
   if(!any(class(obj) %in% c("cross", "map"))) stop("obj needs to be either map or cross")
-  if(class(obj) == cross) {
+  if("cross" %in% class(obj)) {
     mapdf <- lapply(obj$geno, function(x) {
       out <- as.data.frame(x$map)
       out$markerName <- rownames(out)
       return(out)
     })
   }
-  if(class(obj) == map) {
+  if("map" %in% class(obj)) {
     mapdf <- lapply(obj, function(x) {
       class(x) <- "numeric"
       out <- as.data.frame(x)
@@ -281,8 +281,11 @@ map2df <- function(obj) {
     })
   }
 
-  mapdf <- dplyr::bind_rows(mapdf, .id = "lg") %>%
-    dplyr::rename_("mapdist" = quote(`x$map`))
+  mapdf <- dplyr::bind_rows(mapdf, .id = "lg")
+  names(mapdf)[2] <- "mapdist"
+
+  mapdf <- tibble::as_tibble(mapdf)
+
   return(mapdf)
 }
 

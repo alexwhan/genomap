@@ -14,6 +14,7 @@ Imports:
     magrittr (> 1.0),
     lazyeval (> 0.1.0),
     purrr (> 0.1),
+    tibble,
     ggplot2
 Description: A set of tools for working with raw genotype calls and genetic
     maps. These include dealing with conversion of raw calls to relative calls
