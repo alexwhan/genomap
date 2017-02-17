@@ -260,7 +260,8 @@ convertScore <- function(maternal, paternal, progeny, missingString = "--") {
 #'
 #' Similar to pull.map, but returns a more useful object.
 #'
-#' @param map An R/qtl cross or map object
+#' @param obj An object of either class cross or map
+#'
 #' @export
 #' @importFrom magrittr %>%
 map2df <- function(obj) {

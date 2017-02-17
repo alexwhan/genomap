@@ -7,7 +7,7 @@
 map2df(obj)
 }
 \arguments{
-\item{map}{An R/qtl cross or map object}
+\item{obj}{An object of either class cross or map}
 }
 \description{
 Similar to pull.map, but returns a more useful object.
