@@ -30,7 +30,7 @@ globalVariables("mapdist")
 #' @export
 get_lg_lengths.tidy_gen_map <- function(obj) {
   df <- dplyr::group_by_(obj, "lg")
-  dplyr::summarise(df, max_mapdist = max(mapdist))
+  dplyr::summarise(df, lg_length = max(mapdist))
 }
 
 #' Title
@@ -80,5 +80,6 @@ get_lg_offsets <- function(obj, order = NULL) {
     lg_lengths <- lg_lengths[match(order, lg_lengths$lg)]
   }
   
-  lg_lengths$lg_offset <- cumsum(lg_lengths$mapdist) - lg_lengths$mapdist[1]
+  lg_lengths$lg_offset <- cumsum(c(0, lg_lengths$lg_length[1:nrow(lg_lengths) - 1]))
+  lg_lengths
 }
