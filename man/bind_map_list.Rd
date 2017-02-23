@@ -7,7 +7,7 @@
 bind_map_list(mapdf_list)
 }
 \arguments{
-\item{mapdf_list}{}
+\item{mapdf_list}{A list of map dfs}
 }
 \value{
 A tidy_gen_map
