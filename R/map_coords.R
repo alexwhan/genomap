@@ -70,7 +70,7 @@ get_lg_names.tidy_gen_map <- function(obj) {
 #'
 #' @return offsets as a vector
 #' @export
-get_lg_offsets <- function(obj, order = NULL) {
+get_map_coords <- function(obj, order = NULL) {
   lg_lengths <- get_lg_lengths(obj)
   
   if(!is.null(order)) {
@@ -80,6 +80,7 @@ get_lg_offsets <- function(obj, order = NULL) {
     lg_lengths <- lg_lengths[match(order, lg_lengths$lg)]
   }
   
-  lg_lengths$lg_offset <- cumsum(c(0, lg_lengths$lg_length[1:nrow(lg_lengths) - 1]))
+  lg_lengths$lg_start <- cumsum(c(0, lg_lengths$lg_length[1:nrow(lg_lengths) - 1]))
+  lg_lengths$lg_end <- cumsum(lg_lengths$lg_length)
   lg_lengths
 }
