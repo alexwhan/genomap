@@ -16,3 +16,4 @@ asmap_step(obj, p.value = 1e-06)
 A wrapper around ASMap::mstmap with some error handling.
 Associates success or error and p.value with the output.
 }
+

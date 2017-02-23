@@ -2,13 +2,14 @@
 % Please edit documentation in R/genoconverters.R
 \name{map2df}
 \alias{map2df}
-\title{Convert R/qtl map into data.frame}
+\title{Convert R/qtl map into a tidy data.frame}
 \usage{
 map2df(obj)
 }
 \arguments{
-\item{obj}{An object of either class cross or map}
+\item{obj}{An object of either class cross, map or mpcross}
 }
 \description{
-Similar to pull.map, but returns a more useful object.
+Similar to pull.map, but returns a tidy data.frame, tibble, tidy_gen_map.
 }
+
