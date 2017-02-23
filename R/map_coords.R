@@ -71,14 +71,14 @@ get_lg_names.tidy_gen_map <- function(obj) {
 #' @return offsets as a vector
 #' @export
 get_lg_offsets <- function(obj, order = NULL) {
+  lg_lengths <- get_lg_lengths(obj)
+  
   if(!is.null(order)) {
     stopifnot(class(order) == "character")
-    stopifnot(all(order %in% get_lg_names(obj)))
-    stopifnot(all(get_lg_names(obj) %in% order))
-    # map <- map[order]
-    #TODO rewrite this as S3 generic
+    stopifnot(all(order %in% lg_lengths$lg))
+    stopifnot(all(lg_lengths$lg %in% order))
+    lg_lengths <- lg_lengths[match(order, lg_lengths$lg)]
   }
-  offsets <- purrr::map(obj, ~ max(.x)) %>% 
-    purrr::accumulate(sum)
-  return(offsets)
+  
+  lg_lengths$lg_offset <- cumsum(lg_lengths$mapdist) - lg_lengths$mapdist[1]
 }
