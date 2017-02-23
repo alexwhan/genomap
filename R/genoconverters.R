@@ -295,6 +295,18 @@ map2df.map <- function(obj) {
 map2df.mpcross <- function(obj) {
   map2df(obj$map)
 }
+
+#' @export
+map2df.mpInterval <- function(obj) {
+  mapdf_list <- lapply(obj$geno, function(x) {
+    class(x$map) <- "numeric"
+    out <- as.data.frame(x$map)
+    out$markerName <- rownames(out)
+    return(out)
+  })
+  
+  bind_map_list(mapdf_list)
+}
   
 #' Bind a list of mapdfs together
 #'
