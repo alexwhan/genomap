@@ -12,3 +12,4 @@ genoPlot(df)
 \description{
 Plot genotype data for a linkage group
 }
+

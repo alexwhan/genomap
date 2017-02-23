@@ -23,3 +23,4 @@ convert_rel(data, markerName, maternal, paternal, ..., missingString = "--")
 Works one marker at a time. Takes absolute genotype scores and converts to relative scores (AA/AB/BB to
 match maternal/het/paternal).
 }
+

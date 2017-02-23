@@ -16,3 +16,4 @@ convertScore(maternal, paternal, progeny, missingString = "--")
 \description{
 Converts a single marker, typically a row in a data.frame.
 }
+

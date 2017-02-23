@@ -256,40 +256,61 @@ convertScore <- function(maternal, paternal, progeny, missingString = "--") {
 
 
 
-#' Convert R/qtl map into data.frame
+#' Convert R/qtl map into a tidy data.frame
 #'
-#' Similar to pull.map, but returns a more useful object.
+#' Similar to pull.map, but returns a tidy data.frame, tibble, tidy_gen_map.
 #'
-#' @param obj An object of either class cross or map
+#' @param obj An object of either class cross, map or mpcross
 #'
 #' @export
 #' @importFrom magrittr %>%
 map2df <- function(obj) {
-  if(!any(class(obj) %in% c("cross", "map"))) stop("obj needs to be either map or cross")
-  if("cross" %in% class(obj)) {
-    mapdf <- lapply(obj$geno, function(x) {
-      out <- as.data.frame(x$map)
-      out$markerName <- rownames(out)
-      return(out)
-    })
-  }
-  if("map" %in% class(obj)) {
-    mapdf <- lapply(obj, function(x) {
-      class(x) <- "numeric"
-      out <- as.data.frame(x)
-      out$markerName <- rownames(out)
-      return(out)
-    })
-  }
+  UseMethod("map2df")
+}
 
-  mapdf <- dplyr::bind_rows(mapdf, .id = "lg")
+#' @export
+map2df.cross <- function(obj) {
+  mapdf_list <- lapply(obj$geno, function(x) {
+    out <- as.data.frame(x$map)
+    out$markerName <- rownames(out)
+    return(out)
+  })
+  
+  bind_map_list(mapdf_list)
+}
+
+#' @export
+map2df.map <- function(obj) {
+  mapdf_list <- lapply(obj, function(x) {
+    class(x) <- "numeric"
+    out <- as.data.frame(x)
+    out$markerName <- rownames(out)
+    return(out)
+  })
+  
+  bind_map_list(mapdf_list)
+}
+
+#' @export
+map2df.mpcross <- function(obj) {
+  map2df(obj$map)
+}
+  
+#' Bind a list of mapdfs together
+#'
+#' @param mapdf_list A list of map dfs
+#'
+#' @return A tidy_gen_map
+bind_map_list <- function(mapdf_list) {
+  mapdf <- dplyr::bind_rows(mapdf_list, .id = "lg")
   names(mapdf)[2] <- "mapdist"
-
+  
   mapdf <- tibble::as_tibble(mapdf)
   class(mapdf) <- c(class(mapdf), "tidy_gen_map")
-
+  
   return(mapdf)
-}
+}  
+
 
 #' Convert R/qtl genotyping data into data.frame
 #'

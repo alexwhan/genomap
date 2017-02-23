@@ -1,7 +1,7 @@
 Package: genomap
 Type: Package
 Title: A set of tools for working with raw genotype calls and genetic maps
-Version: 0.0.3
+Version: 0.0.4
 Date: 2015-11-03
 Authors@R: c(
     person("Alex", "Whan", , "alexwhan@gmail.com", c("aut", "cre"))
@@ -26,4 +26,4 @@ Suggests:
     testthat,
     covr,
     ASMap (> 0.4)
-RoxygenNote: 6.0.0
+RoxygenNote: 5.0.1

@@ -14,3 +14,4 @@ allele_stats_(data, converted_)
 \description{
 Gets allele stats
 }
+
