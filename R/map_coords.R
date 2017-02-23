@@ -26,6 +26,7 @@ get_lg_lengths.mpcross <- function(obj) {
   get_lg_lengths(obj)
 }
 
+globalVariables("mapdist")
 #' @export
 get_lg_lengths.tidy_gen_map <- function(obj) {
   df <- dplyr::group_by_(obj, "lg")
