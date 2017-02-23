@@ -16,3 +16,4 @@ make_nptest_classes(vec, level = 1, na_string = "u")
 \description{
 Converts a character vector of genotype scores into two classes - one of which represents one homozygous state, and the other represents the other homozygous state and all heterozygotes
 }
+
