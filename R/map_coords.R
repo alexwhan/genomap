@@ -73,11 +73,11 @@ get_lg_offsets <- function(obj, order = NULL) {
   if(!is.null(order)) {
     stopifnot(class(order) == "character")
     stopifnot(all(order %in% get_lg_names(obj)))
-    stopifnot(all(get_lg_name(obj) %in% order))
+    stopifnot(all(get_lg_names(obj) %in% order))
     # map <- map[order]
     #TODO rewrite this as S3 generic
   }
-  offsets <- purrr::map(map, ~ max(.x)) %>% 
+  offsets <- purrr::map(obj, ~ max(.x)) %>% 
     purrr::accumulate(sum)
   return(offsets)
 }
