@@ -43,17 +43,22 @@ get_lg_names <- function(obj) {
 }
 
 #' @export
-cross.get_lg_names <- function(obj) {
+get_lg_names.cross <- function(obj) {
   return(names(obj$geno))
 }
 
 #' @export
-map.get_lg_names <- function(obj) {
+get_lg_names.map <- function(obj) {
   return(names(obj))
 }
 
 #' @export
-tidy_gen_map.get_lg_names <- function(obj) {
+get_lg_names.mpcross <- function(obj) {
+  return(names(obj$map))
+}
+
+#' @export
+get_lg_names.tidy_gen_map <- function(obj) {
   return(unique(obj$lg))
 }
 

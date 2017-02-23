@@ -298,7 +298,7 @@ map2df.mpcross <- function(obj) {
   
 #' Bind a list of mapdfs together
 #'
-#' @param mapdf_list 
+#' @param mapdf_list A list of map dfs
 #'
 #' @return A tidy_gen_map
 bind_map_list <- function(mapdf_list) {
