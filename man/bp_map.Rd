@@ -13,8 +13,7 @@
 bp_map
 }
 \description{
-A map object produced by qtl. This is the same object as 
+A map object produced by qtl. This is the same object as
 genomap::bp_cross$map
 }
 \keyword{datasets}
-

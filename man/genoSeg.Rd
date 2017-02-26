@@ -20,4 +20,3 @@ genoSeg(df, genos, parent1, parent2, missingString = "--")
 \description{
 Compares segregation of markers based on agreement of two markers (population parents)
 }
-

@@ -15,4 +15,3 @@ A tidy_gen_map
 \description{
 Bind a list of mapdfs together
 }
-

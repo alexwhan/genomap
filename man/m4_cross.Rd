@@ -3,6 +3,7 @@
 \docType{data}
 \name{m4_cross}
 \alias{m4_cross}
+\alias{m4_cross}
 \title{A multiparental cross object}
 \format{A list of class 'mpcross'
 \describe{
@@ -12,9 +13,12 @@
 }}
 \usage{
 m4_cross
+
+m4_cross
 }
 \description{
 A 4-way mpcross object produced by mpMap
+
+An 8-way mpcross object produced by mpMap
 }
 \keyword{datasets}
-

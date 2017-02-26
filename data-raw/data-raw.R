@@ -10,3 +10,7 @@ bp_cross <- sim.cross(bp_map, type = "f2")
 m4_ped <- sim.mpped(4, 3, 1, 6, 6)
 
 m4_cross <- sim.mpcross(bp_map, m4_ped)
+
+m8_ped <- sim.mpped(8, 7, 1, 6, 6)
+
+m8_cross <- sim.mpcross(bp_map, m8_ped)

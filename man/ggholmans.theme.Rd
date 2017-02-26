@@ -12,4 +12,3 @@ ggholmans.theme
 A theme for trinomial plots
 }
 \keyword{datasets}
-

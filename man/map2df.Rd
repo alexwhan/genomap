@@ -12,4 +12,3 @@ map2df(obj)
 \description{
 Similar to pull.map, but returns a tidy data.frame, tibble, tidy_gen_map.
 }
-
