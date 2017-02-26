@@ -27,4 +27,3 @@ isHet("AA")
 isHet(c("AA", "AB", "BB"))
 isHet("GT", "[AB]")
 }
-

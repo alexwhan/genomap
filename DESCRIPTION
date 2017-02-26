@@ -26,4 +26,4 @@ Suggests:
     testthat,
     covr,
     ASMap (> 0.4)
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.0

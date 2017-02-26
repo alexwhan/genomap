@@ -34,4 +34,3 @@ column in map2.}
 Take two maps that have been converted to df (possibly through
 /code{map2df()}) and join them.
 }
-

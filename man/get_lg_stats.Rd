@@ -14,4 +14,3 @@ get_lg_stats(obj)
 Returns the maximum distance between markers for a
 linkage group.
 }
-

@@ -15,4 +15,3 @@ map coordinates as a vector
 \description{
 Get linkage group extents
 }
-

@@ -16,4 +16,3 @@ bp_cross
 A cross produced by qtl
 }
 \keyword{datasets}
-
