@@ -43,4 +43,4 @@
 #' \item{map}{A list describing the genetic map}
 #' ...
 #' }
-"m4_cross"
+"m8_cross"
