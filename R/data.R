@@ -34,9 +34,9 @@
 "m4_cross"
 
 #' A multiparental cross object
-#'
+#' 
 #' An 8-way mpcross object produced by mpMap
-#'
+#' 
 #' @format A list of class 'mpcross'
 #' \describe{
 #' \item{founders}{The genotyping of the founders}
@@ -44,3 +44,15 @@
 #' ...
 #' }
 "m8_cross"
+
+#' An mpwgaim mpInterval object
+#' 
+#' A 4-way mpInterval object produced by mpwgaim
+#' 
+#' @format A list of class 'mpInterval'
+#' \describe{
+#' \item{pheno}{A phenotype data.frame}
+#' \item{geno}{A list of lgs, including genotyping and map data}
+#' ...
+#' }
+"m4_int"

@@ -26,6 +26,12 @@ get_lg_lengths.mpcross <- function(obj) {
   get_lg_lengths(obj)
 }
 
+#' @export
+get_lg_lengths.mpInterval <- function(obj) {
+  obj <- map2df(obj)
+  get_lg_lengths(obj)
+}
+
 globalVariables("mapdist")
 #' @export
 get_lg_lengths.tidy_gen_map <- function(obj) {
