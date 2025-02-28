@@ -12,4 +12,3 @@ geno2df(map)
 \description{
 Similar to map2df, but for the genotying values.
 }
-

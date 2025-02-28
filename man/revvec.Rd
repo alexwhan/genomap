@@ -16,4 +16,3 @@ Provide the 'mirror image' of a vector, especially of positions.
 distvec <- c(A = 0, B = 3, C = 10)
 revvec(distvec)
 }
-
